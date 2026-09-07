@@ -21,23 +21,23 @@ export async function Comments(props: Props) {
 
   return (
     <section className="mt-8 flex flex-col gap-4">
-      <h2 className="text-lg font-semibold">Comments</h2>
+      <h2 className="text-lg font-semibold text-offwhite">Comments</h2>
 
       <ul className="flex flex-col gap-3">
         {comments?.length ? (
           comments.map((comment) => (
             <li
               key={comment.id}
-              className="rounded-md border border-neutral-200 p-3 text-sm dark:border-neutral-800"
+              className="rounded-md border border-panel bg-panel/40 p-3 text-sm"
             >
-              <p className="font-medium">
+              <p className="font-medium text-ember">
                 {comment.profiles?.name ?? "A brother"}
               </p>
-              <p className="mt-1 whitespace-pre-wrap">{comment.body}</p>
+              <p className="mt-1 whitespace-pre-wrap text-offwhite">{comment.body}</p>
             </li>
           ))
         ) : (
-          <p className="text-sm text-neutral-500">No comments yet.</p>
+          <p className="text-sm text-muted">No comments yet.</p>
         )}
       </ul>
 
@@ -51,18 +51,18 @@ export async function Comments(props: Props) {
             required
             rows={3}
             placeholder="Add a comment..."
-            className="rounded-md border border-neutral-300 bg-transparent px-3 py-2 text-sm dark:border-neutral-700"
+            className="rounded-md border border-panel bg-transparent px-3 py-2 text-sm text-offwhite placeholder:text-muted focus:border-ember focus:outline-none"
           />
           <button
             type="submit"
-            className="self-start rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+            className="self-start rounded-md bg-ember px-4 py-2 text-sm font-medium text-charcoal hover:bg-ember/90"
           >
             Post
           </button>
         </form>
       ) : (
-        <p className="text-sm text-neutral-500">
-          <Link href="/login" className="underline">
+        <p className="text-sm text-muted">
+          <Link href="/login" className="text-ember hover:underline">
             Log in
           </Link>{" "}
           to leave a comment.

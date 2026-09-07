@@ -41,11 +41,11 @@ export default async function PrayerRequestDetailPage({
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
-      <p className="text-sm text-neutral-500">
+      <p className="text-sm text-muted">
         {request.date} · {request.profiles?.name ?? "A brother"}
       </p>
-      <h1 className="mt-1 text-2xl font-bold">{request.title}</h1>
-      <p className="mt-4 whitespace-pre-wrap">{request.description}</p>
+      <h1 className="mt-1 text-2xl font-bold text-offwhite">{request.title}</h1>
+      <p className="mt-4 whitespace-pre-wrap text-offwhite">{request.description}</p>
 
       <form
         action={toggleReaction.bind(null, request.id, `/prayers/${request.id}`)}
@@ -55,8 +55,8 @@ export default async function PrayerRequestDetailPage({
           type="submit"
           className={`rounded-full border px-3 py-1 text-sm ${
             reacted
-              ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900"
-              : "border-neutral-300 dark:border-neutral-700"
+              ? "border-ember bg-ember text-charcoal"
+              : "border-panel text-muted hover:text-offwhite"
           }`}
         >
           🙏 {count} praying

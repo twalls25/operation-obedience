@@ -9,30 +9,32 @@ export async function Nav() {
   } = await supabase.auth.getUser();
 
   const { data: profile } = user
-    ? await supabase
-        .from("profiles")
-        .select("is_admin")
-        .eq("id", user.id)
-        .single()
+    ? await supabase.from("profiles").select("role").eq("id", user.id).single()
     : { data: null };
 
+  const isAdmin = profile?.role === "admin";
+
   return (
-    <nav className="flex items-center justify-between border-b border-neutral-200 px-6 py-4 dark:border-neutral-800">
-      <div className="flex items-center gap-4">
-        <Link href="/" className="font-bold">
-          Operation Obedience
+    <nav className="flex flex-wrap items-center justify-between gap-3 border-b border-panel bg-panel px-6 py-3">
+      <div className="flex flex-wrap items-center gap-5">
+        <Link href="/" className="flex items-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="Operation Obedience" className="h-14 w-auto" />
         </Link>
-        <Link href="/testimonies" className="text-sm underline">
+        <Link href="/testimonies" className="text-sm text-ember hover:underline">
           Testimonies
         </Link>
-        <Link href="/prayers" className="text-sm underline">
+        <Link href="/prayers" className="text-sm text-ember hover:underline">
           Prayer Requests
         </Link>
-        <Link href="/checkins" className="text-sm underline">
+        <Link href="/checkins" className="text-sm text-ember hover:underline">
           Check-Ins
         </Link>
-        {profile?.is_admin && (
-          <Link href="/testimonies/new" className="text-sm underline">
+        <Link href="/resources" className="text-sm text-ember hover:underline">
+          Content Library
+        </Link>
+        {isAdmin && (
+          <Link href="/testimonies/new" className="text-sm text-ember hover:underline">
             Post testimony
           </Link>
         )}
@@ -40,21 +42,21 @@ export async function Nav() {
 
       {user ? (
         <div className="flex items-center gap-4 text-sm">
-          <Link href="/profile" className="underline">
+          <Link href="/profile" className="text-offwhite hover:underline">
             {user.email}
           </Link>
           <form action={logout}>
-            <button type="submit" className="underline">
+            <button type="submit" className="text-muted hover:text-offwhite">
               Log out
             </button>
           </form>
         </div>
       ) : (
         <div className="flex items-center gap-4 text-sm">
-          <Link href="/login" className="underline">
+          <Link href="/login" className="text-offwhite hover:underline">
             Log in
           </Link>
-          <Link href="/signup" className="underline">
+          <Link href="/signup" className="text-ember hover:underline">
             Sign up
           </Link>
         </div>

@@ -20,11 +20,11 @@ export default async function NewTestimonyPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("is_admin")
+    .select("role")
     .eq("id", user.id)
     .single();
 
-  if (!profile?.is_admin) {
+  if (profile?.role !== "admin") {
     redirect("/");
   }
 
@@ -32,60 +32,60 @@ export default async function NewTestimonyPage({
 
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-lg flex-col justify-center px-6 py-12">
-      <h1 className="text-2xl font-bold">Post a testimony</h1>
+      <h1 className="text-2xl font-bold text-offwhite">Post a testimony</h1>
 
       {error && (
-        <p className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
+        <p className="mt-4 rounded-md border border-red-900 bg-red-950/60 px-3 py-2 text-sm text-red-300">
           {error}
         </p>
       )}
 
       <form className="mt-6 flex flex-col gap-4">
-        <label className="flex flex-col gap-1 text-sm">
+        <label className="flex flex-col gap-1 text-sm text-offwhite">
           Verse reference
           <input
             name="verse_reference"
             type="text"
             required
             placeholder="Romans 8:28"
-            className="rounded-md border border-neutral-300 bg-transparent px-3 py-2 dark:border-neutral-700"
+            className="rounded-md border border-panel bg-transparent px-3 py-2 text-offwhite placeholder:text-muted focus:border-ember focus:outline-none"
           />
         </label>
 
-        <label className="flex flex-col gap-1 text-sm">
+        <label className="flex flex-col gap-1 text-sm text-offwhite">
           Verse text
           <textarea
             name="verse_text"
             required
             rows={3}
-            className="rounded-md border border-neutral-300 bg-transparent px-3 py-2 dark:border-neutral-700"
+            className="rounded-md border border-panel bg-transparent px-3 py-2 text-offwhite focus:border-ember focus:outline-none"
           />
         </label>
 
-        <label className="flex flex-col gap-1 text-sm">
+        <label className="flex flex-col gap-1 text-sm text-offwhite">
           Context / reflection
           <textarea
             name="context"
             required
             rows={5}
-            className="rounded-md border border-neutral-300 bg-transparent px-3 py-2 dark:border-neutral-700"
+            className="rounded-md border border-panel bg-transparent px-3 py-2 text-offwhite focus:border-ember focus:outline-none"
           />
         </label>
 
-        <label className="flex flex-col gap-1 text-sm">
+        <label className="flex flex-col gap-1 text-sm text-offwhite">
           Date
           <input
             name="date"
             type="date"
             required
             defaultValue={today}
-            className="rounded-md border border-neutral-300 bg-transparent px-3 py-2 dark:border-neutral-700"
+            className="rounded-md border border-panel bg-transparent px-3 py-2 text-offwhite focus:border-ember focus:outline-none"
           />
         </label>
 
         <button
           formAction={createTestimony}
-          className="mt-2 rounded-md bg-neutral-900 px-4 py-2 font-medium text-white hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+          className="mt-2 rounded-md bg-ember px-4 py-2 font-medium text-charcoal hover:bg-ember/90"
         >
           Post
         </button>

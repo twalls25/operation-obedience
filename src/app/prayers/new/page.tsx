@@ -20,38 +20,38 @@ export default async function NewPrayerRequestPage({
 
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-lg flex-col justify-center px-6 py-12">
-      <h1 className="text-2xl font-bold">Submit a prayer request</h1>
+      <h1 className="text-2xl font-bold text-offwhite">Submit a prayer request</h1>
 
       {error && (
-        <p className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
+        <p className="mt-4 rounded-md border border-red-900 bg-red-950/60 px-3 py-2 text-sm text-red-300">
           {error}
         </p>
       )}
 
       <form className="mt-6 flex flex-col gap-4">
-        <label className="flex flex-col gap-1 text-sm">
+        <label className="flex flex-col gap-1 text-sm text-offwhite">
           Title
           <input
             name="title"
             type="text"
             required
-            className="rounded-md border border-neutral-300 bg-transparent px-3 py-2 dark:border-neutral-700"
+            className="rounded-md border border-panel bg-transparent px-3 py-2 text-offwhite focus:border-ember focus:outline-none"
           />
         </label>
 
-        <label className="flex flex-col gap-1 text-sm">
+        <label className="flex flex-col gap-1 text-sm text-offwhite">
           Description
           <textarea
             name="description"
             required
             rows={5}
-            className="rounded-md border border-neutral-300 bg-transparent px-3 py-2 dark:border-neutral-700"
+            className="rounded-md border border-panel bg-transparent px-3 py-2 text-offwhite focus:border-ember focus:outline-none"
           />
         </label>
 
         <button
           formAction={createPrayerRequest}
-          className="mt-2 rounded-md bg-neutral-900 px-4 py-2 font-medium text-white hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+          className="mt-2 rounded-md bg-ember px-4 py-2 font-medium text-charcoal hover:bg-ember/90"
         >
           Submit
         </button>

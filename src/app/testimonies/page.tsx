@@ -11,7 +11,7 @@ export default async function TestimoniesArchivePage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
-      <h1 className="text-2xl font-bold">Testimony archive</h1>
+      <h1 className="text-2xl font-bold text-offwhite">Testimony archive</h1>
 
       <ul className="mt-6 flex flex-col gap-3">
         {testimonies?.length ? (
@@ -19,17 +19,17 @@ export default async function TestimoniesArchivePage() {
             <li key={testimony.id}>
               <Link
                 href={`/testimonies/${testimony.id}`}
-                className="block rounded-md border border-neutral-200 p-3 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-900"
+                className="block rounded-md border border-panel bg-panel/40 p-3 hover:bg-panel/70"
               >
-                <p className="font-medium">{testimony.verse_reference}</p>
-                <p className="text-sm text-neutral-500">
+                <p className="font-medium text-offwhite">{testimony.verse_reference}</p>
+                <p className="text-sm text-muted">
                   {testimony.date} · {testimony.profiles?.name ?? "A brother"}
                 </p>
               </Link>
             </li>
           ))
         ) : (
-          <p className="text-sm text-neutral-500">No testimonies posted yet.</p>
+          <p className="text-sm text-muted">No testimonies posted yet.</p>
         )}
       </ul>
     </main>
