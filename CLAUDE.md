@@ -100,12 +100,17 @@ Notes:
 - Gotcha hit: embedding `profiles(name)` on `prayer_requests` was ambiguous to PostgREST once `prayer_reactions` existed, because it creates a *second* path from `prayer_requests` to `profiles` (via `prayer_reactions.user_id`). Fixed by naming the FK explicitly: `profiles!prayer_requests_user_id_fkey(name)`. Worth remembering if a future embed on a table with multiple relationships to the same target silently returns null data — check for a swallowed `error` on the query first.
 - Routes: `/prayers` (feed), `/prayers/[id]` (full text + reactions + comments), `/prayers/new` (submit form, any logged-in user).
 
-### Phase 6: Daily Check-Ins
-- [ ] Create `checkins` table (trained + note, prayed + note, scripture + note, user_id, date)
-- [ ] Build the check-in submission form (checkboxes + optional notes)
-- [ ] Build the check-in feed (card view showing badges + notes)
-- [ ] Wire in the shared comment system
-- [ ] Optional: build a simple streak counter per user
+### Phase 6: Daily Check-Ins — COMPLETE
+- [x] Create `checkins` table (trained + note, prayed + note, scripture + note, user_id, date)
+- [x] Build the check-in submission form (checkboxes + optional notes)
+- [x] Build the check-in feed (card view showing badges + notes)
+- [x] Wire in the shared comment system
+- [x] Optional: build a simple streak counter per user
+
+Notes:
+- `checkins` has a `unique (user_id, date)` constraint; the submit form upserts on `user_id,date`, so re-checking in today edits today's row instead of creating a duplicate (verified in browser: updated Scripture on an existing check-in, feed still showed one card, badges updated).
+- Streak logic (`src/lib/checkins/streak.ts`) counts consecutive days ending today, or ending yesterday if today isn't checked in yet (so the streak doesn't zero out mid-day before someone's checked in).
+- Routes: `/checkins` (feed + streak), `/checkins/[id]` (full notes + comments), `/checkins/new` (submit/update today's).
 
 ### Phase 7: Polish & Launch Prep
 - [ ] Build a simple nav bar / mobile-friendly layout

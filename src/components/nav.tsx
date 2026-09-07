@@ -28,6 +28,9 @@ export async function Nav() {
         <Link href="/prayers" className="text-sm underline">
           Prayer Requests
         </Link>
+        <Link href="/checkins" className="text-sm underline">
+          Check-Ins
+        </Link>
         {profile?.is_admin && (
           <Link href="/testimonies/new" className="text-sm underline">
             Post testimony
