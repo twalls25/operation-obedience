@@ -74,12 +74,18 @@ Notes:
 - `comments.testimony_id` / `prayer_request_id` / `checkin_id` are plain uuid columns, not yet FKs — add the FK constraint for each when its real table is created in Phases 4-6 (see comment at top of `supabase/migrations/003_comments.sql`).
 - Verified end-to-end via a temporary test page (now deleted): logged-in post + list, logged-out view-only (no form), author name joined in from `profiles`.
 
-### Phase 4: Daily Testimony
-- [ ] Create `testimonies` table (verse reference, verse text, context, date, author)
-- [ ] Build home page section that displays today's testimony
-- [ ] Build a simple form to post a new testimony (admin-only to start)
-- [ ] Wire in the shared comment system
-- [ ] Build an archive/history page to browse past testimonies
+### Phase 4: Daily Testimony — COMPLETE
+- [x] Create `testimonies` table (verse reference, verse text, context, date, author)
+- [x] Build home page section that displays today's testimony
+- [x] Build a simple form to post a new testimony (admin-only to start)
+- [x] Wire in the shared comment system
+- [x] Build an archive/history page to browse past testimonies
+
+Notes:
+- `profiles.is_admin` gates posting (`/testimonies/new` redirects non-admins to `/`, logged-out to `/login`). Currently only `tyler+ootest2@ironshepherdsystems.com` is admin (see `005_bootstrap_admin.sql`) — re-run that migration for the real admin account(s) once the new domains have real email addresses set up.
+- Home page shows the latest testimony with `date <= today` (falls back gracefully to the most recent past one if nothing's posted for today yet, rather than showing nothing).
+- Routes: `/` (today's), `/testimonies` (archive), `/testimonies/[id]` (full text + comments), `/testimonies/new` (admin post form).
+- Verified end-to-end in browser: post as admin -> shows on home -> archive lists it -> detail page -> comment -> logged-out user redirected away from `/testimonies/new`.
 
 ### Phase 5: Prayer Request Board
 - [ ] Create `prayer_requests` table (title, description, user_id, date)
