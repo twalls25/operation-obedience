@@ -23,6 +23,7 @@ export async function submitCheckin(formData: FormData) {
   const trained_note = (formData.get("trained_note") as string) || null;
   const prayed_note = (formData.get("prayed_note") as string) || null;
   const scripture_note = (formData.get("scripture_note") as string) || null;
+  const working_on = (formData.get("working_on") as string) || null;
 
   const { error } = await supabase.from("checkins").upsert(
     {
@@ -34,6 +35,7 @@ export async function submitCheckin(formData: FormData) {
       prayed_note,
       scripture,
       scripture_note,
+      working_on,
     },
     { onConflict: "user_id,date" }
   );

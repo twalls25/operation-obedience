@@ -22,6 +22,16 @@ This is a "Claude writes, Tyler vets" workflow. Concretely, that means:
 - Commit logically-scoped chunks of work with clear commit messages so there are good rollback points.
 - Keep this file updated as decisions get made (e.g. note when a phase is completed, or when a design decision changes) so future sessions don't lose context.
 
+## Branding
+**v1 applied** (logo + color palette). Full spec in `BRANDING.md`; source logo at `public/logo.svg`, used directly (not edited) per Tyler's approval. Palette added as Tailwind theme tokens in `src/app/globals.css` under `@theme` — `bg-charcoal`, `bg-panel`, `bg-ember`/`text-ember`, `text-offwhite`, `text-muted`. This is a dark-theme-only app now (no light mode, no `dark:` variants needed) — charcoal is the base background everywhere, ember is the only accent color, used for buttons/links/highlights.
+
+Two pragmatic exceptions to "ember is the only accent," flagged per Tyler's instruction to check in before adding colors: error banners use a dark red (`border-red-900 bg-red-950/60 text-red-300`) and there's no separate success color — success messages reuse the panel background with an ember left-border accent instead of introducing green. Revisit if Tyler wants error states to use a different treatment.
+
+**Known logo issues to address before this ships wider** (flagged per Tyler's request):
+1. **Background mismatch**: `logo.svg` bakes in its own background rect (`#17191c`) rather than being transparent, which is a slightly different shade than the site's `panel` color (`#2B2F34`) it sits on in the nav bar — this shows up as a faint but visible box around the logo. Fix requires either a transparent-background export of the SVG, or recoloring that rect to match `#2B2F34` (would need to touch the "approved" file).
+2. **Legibility at nav size**: the two-line stacked wordmark ("OPERATION" / "OBEDIENCE") with the reticle-O and sword-T/I detail is hard to read at typical nav-bar heights. Currently rendered at `h-14` (56px) in the nav as a compromise — smaller and the sword/reticle detail disappears entirely; even at this size it's not fully crisp. May need a simplified/single-line variant for small placements (nav, favicon) with the full lockup reserved for larger placements (e.g. an About page hero).
+3. Emblem/favicon is intentionally still the platform default per `BRANDING.md` — not an oversight, don't touch until Tyler provides one.
+
 ## Local dev environment notes
 - Tyler's machine has network-level TLS inspection (security software) that Node doesn't trust by default, causing `fetch failed` / `unable to verify the first certificate` errors on any outbound HTTPS call from the dev server (e.g. to Supabase) — but not from plain `node -e` scripts run outside the dev server process. Fixed by running `next dev` with `NODE_OPTIONS=--use-system-ca` (see the `dev` script in `package.json`, using `cross-env` for cross-platform env vars) so Node trusts the same root CA store Windows does. If a similar "fetch failed" error resurfaces, check this first before assuming it's a Supabase config issue.
 
@@ -82,7 +92,7 @@ Notes:
 - [x] Build an archive/history page to browse past testimonies
 
 Notes:
-- `profiles.is_admin` gates posting (`/testimonies/new` redirects non-admins to `/`, logged-out to `/login`). Currently only `tyler+ootest2@ironshepherdsystems.com` is admin (see `005_bootstrap_admin.sql`) — re-run that migration for the real admin account(s) once the new domains have real email addresses set up.
+- Posting is admin-gated (`/testimonies/new` redirects non-admins to `/`, logged-out to `/login`). Originally used a `profiles.is_admin` boolean; **superseded in Phase 7 by `profiles.role`** (`'member'` | `'admin'`) so testimonies and the Content Library share one admin model — see Phase 7 notes. Currently only `tyler+ootest2@ironshepherdsystems.com` is admin — re-bootstrap for the real admin account(s) once the new domains have real email addresses set up.
 - Home page shows the latest testimony with `date <= today` (falls back gracefully to the most recent past one if nothing's posted for today yet, rather than showing nothing).
 - Routes: `/` (today's), `/testimonies` (archive), `/testimonies/[id]` (full text + comments), `/testimonies/new` (admin post form).
 - Verified end-to-end in browser: post as admin -> shows on home -> archive lists it -> detail page -> comment -> logged-out user redirected away from `/testimonies/new`.
@@ -112,7 +122,22 @@ Notes:
 - Streak logic (`src/lib/checkins/streak.ts`) counts consecutive days ending today, or ending yesterday if today isn't checked in yet (so the streak doesn't zero out mid-day before someone's checked in).
 - Routes: `/checkins` (feed + streak), `/checkins/[id]` (full notes + comments), `/checkins/new` (submit/update today's).
 
-### Phase 7: Polish & Launch Prep
+### Phase 7: Content Library
+Replaces the earlier separate "Resources" and "Plans" ideas discussed with Tyler — folded into one feature, since a plan is really just a longer piece of browsable content, same as a book or sermon.
+- [ ] Create `resources` table (type, title, author, link, description, content, date) — code written, blocked on Tyler running `009_resources.sql`
+- [ ] Add `profiles.role` (`member`/`admin`), replacing `is_admin` — code written, blocked on Tyler running `008_admin_role.sql`
+- [ ] Content library page, filterable by type, plan cards link to a detail view, other types link out externally — code written, same migration blocker
+- [ ] Admin-only "add resource" form that adapts fields by type — code written, same migration blocker
+- [ ] Optional free-text "what are you working through" field on the check-in form — code written, blocked on Tyler running `010_checkin_working_on.sql`
+
+Notes:
+- Three migrations to run in order: `008_admin_role`, `009_resources`, `010_checkin_working_on` (see `supabase/migrations/`). Tyler will set his own account's `role` to `'admin'` himself via the Supabase table editor once `008` is run.
+- `008_admin_role` also updates the testimonies insert policy to check `role = 'admin'` instead of the old `is_admin` column, then drops that column — testimonies and the Content Library now share one admin model.
+- Any current admin can add resources — no separate "owner" tier (matches how testimony-posting admin access already works).
+- `working_on` on `checkins` is plain free text with no relational link to `resources` — deliberately simple, per Tyler.
+- Not yet verified end-to-end in browser (waiting on the migrations above) — will confirm and check these off once Tyler's run them.
+
+### Phase 8: Polish & Launch Prep
 - [ ] Build a simple nav bar / mobile-friendly layout
 - [ ] Add a basic "About Operation Obedience" page
 - [ ] Add basic error handling (empty states, loading states)

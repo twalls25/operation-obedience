@@ -22,25 +22,27 @@ export default async function NewCheckinPage({
 
   const { data: existing } = await supabase
     .from("checkins")
-    .select("trained, trained_note, prayed, prayed_note, scripture, scripture_note")
+    .select(
+      "trained, trained_note, prayed, prayed_note, scripture, scripture_note, working_on"
+    )
     .eq("user_id", user.id)
     .eq("date", today)
     .maybeSingle();
 
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-lg flex-col justify-center px-6 py-12">
-      <h1 className="text-2xl font-bold">Today&apos;s check-in</h1>
-      <p className="mt-1 text-sm text-neutral-500">{today}</p>
+      <h1 className="text-2xl font-bold text-offwhite">Today&apos;s check-in</h1>
+      <p className="mt-1 text-sm text-muted">{today}</p>
 
       {error && (
-        <p className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
+        <p className="mt-4 rounded-md border border-red-900 bg-red-950/60 px-3 py-2 text-sm text-red-300">
           {error}
         </p>
       )}
 
       <form className="mt-6 flex flex-col gap-6">
         <fieldset className="flex flex-col gap-2">
-          <label className="flex items-center gap-2 text-sm font-medium">
+          <label className="flex items-center gap-2 text-sm font-medium text-offwhite">
             <input
               type="checkbox"
               name="trained"
@@ -53,12 +55,12 @@ export default async function NewCheckinPage({
             rows={2}
             placeholder="Optional note"
             defaultValue={existing?.trained_note ?? ""}
-            className="rounded-md border border-neutral-300 bg-transparent px-3 py-2 text-sm dark:border-neutral-700"
+            className="rounded-md border border-panel bg-transparent px-3 py-2 text-sm text-offwhite placeholder:text-muted focus:border-ember focus:outline-none"
           />
         </fieldset>
 
         <fieldset className="flex flex-col gap-2">
-          <label className="flex items-center gap-2 text-sm font-medium">
+          <label className="flex items-center gap-2 text-sm font-medium text-offwhite">
             <input
               type="checkbox"
               name="prayed"
@@ -71,12 +73,12 @@ export default async function NewCheckinPage({
             rows={2}
             placeholder="Optional note"
             defaultValue={existing?.prayed_note ?? ""}
-            className="rounded-md border border-neutral-300 bg-transparent px-3 py-2 text-sm dark:border-neutral-700"
+            className="rounded-md border border-panel bg-transparent px-3 py-2 text-sm text-offwhite placeholder:text-muted focus:border-ember focus:outline-none"
           />
         </fieldset>
 
         <fieldset className="flex flex-col gap-2">
-          <label className="flex items-center gap-2 text-sm font-medium">
+          <label className="flex items-center gap-2 text-sm font-medium text-offwhite">
             <input
               type="checkbox"
               name="scripture"
@@ -89,13 +91,24 @@ export default async function NewCheckinPage({
             rows={2}
             placeholder="Optional note"
             defaultValue={existing?.scripture_note ?? ""}
-            className="rounded-md border border-neutral-300 bg-transparent px-3 py-2 text-sm dark:border-neutral-700"
+            className="rounded-md border border-panel bg-transparent px-3 py-2 text-sm text-offwhite placeholder:text-muted focus:border-ember focus:outline-none"
           />
         </fieldset>
 
+        <label className="flex flex-col gap-1 text-sm text-offwhite">
+          What are you working through? (optional)
+          <input
+            name="working_on"
+            type="text"
+            placeholder="e.g. Foundations plan – Week 3"
+            defaultValue={existing?.working_on ?? ""}
+            className="rounded-md border border-panel bg-transparent px-3 py-2 text-offwhite placeholder:text-muted focus:border-ember focus:outline-none"
+          />
+        </label>
+
         <button
           formAction={submitCheckin}
-          className="rounded-md bg-neutral-900 px-4 py-2 font-medium text-white hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+          className="rounded-md bg-ember px-4 py-2 font-medium text-charcoal hover:bg-ember/90"
         >
           {existing ? "Update check-in" : "Submit check-in"}
         </button>
