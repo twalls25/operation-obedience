@@ -50,11 +50,11 @@ Notes:
 - Supabase project: `rjmxmdhuerrcxxcljnnl`. Env vars used in code: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (set locally in `.env.local` and in Vercel's dashboard as Config, not Secret, since they're `NEXT_PUBLIC_` and safe to expose client-side)
 
 ### Phase 2: User Accounts
-- [ ] Set up Supabase Auth (email/password sign up + login)
-- [ ] Build sign-up page
-- [ ] Build login page
-- [ ] Build basic profile (name, avatar optional)
-- [ ] Add logged-in/logged-out states across the app (nav bar changes, protected pages)
+- [x] Set up Supabase Auth (email/password sign up + login)
+- [x] Build sign-up page
+- [x] Build login page
+- [ ] Build basic profile (name, avatar optional) — code written (`/profile`), blocked on Tyler running `supabase/migrations/001_profiles.sql` in the Supabase SQL Editor to create the `profiles` table
+- [x] Add logged-in/logged-out states across the app (nav bar changes, protected pages) — verified `/profile` redirects to `/login` when logged out
 
 ### Phase 3: Shared Comment System
 - [ ] Create `comments` table in Supabase (linked to any post type by ID)
