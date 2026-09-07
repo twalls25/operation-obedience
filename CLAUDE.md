@@ -49,12 +49,20 @@ Notes:
 - Live at https://operation-obedience.vercel.app (auto-deploys on push to `master`)
 - Supabase project: `rjmxmdhuerrcxxcljnnl`. Env vars used in code: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (set locally in `.env.local` and in Vercel's dashboard as Config, not Secret, since they're `NEXT_PUBLIC_` and safe to expose client-side)
 
-### Phase 2: User Accounts
+### Phase 2: User Accounts — COMPLETE
 - [x] Set up Supabase Auth (email/password sign up + login)
 - [x] Build sign-up page
 - [x] Build login page
-- [ ] Build basic profile (name, avatar optional) — code written (`/profile`), blocked on Tyler running `supabase/migrations/001_profiles.sql` in the Supabase SQL Editor to create the `profiles` table
-- [x] Add logged-in/logged-out states across the app (nav bar changes, protected pages) — verified `/profile` redirects to `/login` when logged out
+- [x] Build basic profile (name, avatar optional) — `/profile`, backed by the `profiles` table
+- [x] Add logged-in/logged-out states across the app (nav bar changes, protected pages)
+
+Notes:
+- Full loop verified end-to-end in the real browser: sign up -> confirmation email -> click link -> logged in -> edit/save profile name -> log out.
+- Two gotchas hit and fixed along the way (both noted above/in migrations so they don't get re-debugged from scratch):
+  - Local dev TLS fetch failures (see "Local dev environment notes").
+  - `profiles` table needed explicit `grant` statements beyond RLS policies — RLS restricts *which* rows a role can touch, but the role still needs base table privileges granted first. See `supabase/migrations/002_profiles_grants.sql`.
+- The email-confirmation link is PKCE-based: it only works when the same browser that submitted the sign-up form later clicks the link (a cookie-bound "code verifier" ties them together). Doesn't affect real users — they naturally do both in one browser — but matters for testing: Claude testing signup via its own automated browser can't complete confirmation itself; Tyler needs to do that step in his own browser.
+- Supabase's shared/default email sending has a low rate limit (a handful of emails/hour) since custom SMTP isn't configured. Fine for now; revisit if it becomes a blocker (e.g. before real user signups at launch).
 
 ### Phase 3: Shared Comment System
 - [ ] Create `comments` table in Supabase (linked to any post type by ID)
