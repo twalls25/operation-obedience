@@ -64,10 +64,15 @@ Notes:
 - The email-confirmation link is PKCE-based: it only works when the same browser that submitted the sign-up form later clicks the link (a cookie-bound "code verifier" ties them together). Doesn't affect real users — they naturally do both in one browser — but matters for testing: Claude testing signup via its own automated browser can't complete confirmation itself; Tyler needs to do that step in his own browser.
 - Supabase's shared/default email sending has a low rate limit (a handful of emails/hour) since custom SMTP isn't configured. Fine for now; revisit if it becomes a blocker (e.g. before real user signups at launch).
 
-### Phase 3: Shared Comment System
-- [ ] Create `comments` table in Supabase (linked to any post type by ID)
-- [ ] Build reusable comment list + comment form component
-- [ ] Test comments work generically before wiring into specific features
+### Phase 3: Shared Comment System — COMPLETE
+- [x] Create `comments` table in Supabase (linked to any post type by ID)
+- [x] Build reusable comment list + comment form component
+- [x] Test comments work generically before wiring into specific features
+
+Notes:
+- `<Comments testimonyId={id} path="/some/path" />` (or `prayerRequestId` / `checkinId`) in `src/components/comments.tsx` — pass exactly one parent id, matching the DB's `comments_exactly_one_parent` check constraint. `path` is passed to `revalidatePath` after posting, so pass whatever path is rendering the component.
+- `comments.testimony_id` / `prayer_request_id` / `checkin_id` are plain uuid columns, not yet FKs — add the FK constraint for each when its real table is created in Phases 4-6 (see comment at top of `supabase/migrations/003_comments.sql`).
+- Verified end-to-end via a temporary test page (now deleted): logged-in post + list, logged-out view-only (no form), author name joined in from `profiles`.
 
 ### Phase 4: Daily Testimony
 - [ ] Create `testimonies` table (verse reference, verse text, context, date, author)
