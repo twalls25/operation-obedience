@@ -35,12 +35,16 @@ Testimonies, prayer requests, and check-ins all share one reusable comments syst
 - [x] Create a free Vercel account
 - [x] Create project folder and open it in Claude Code
 
-### Phase 1: Project Scaffolding
+### Phase 1: Project Scaffolding — COMPLETE
 - [x] Scaffold a new Next.js project in this folder (App Router, TypeScript, Tailwind)
-- [ ] Tyler connects the folder to a new GitHub repo (`git init`/`git push` — Tyler authenticates)
-- [ ] Tyler connects the GitHub repo to Vercel (Tyler logs in via Vercel's dashboard)
-- [ ] Tyler creates a Supabase project and pastes the URL/API keys into a local `.env` file (tell Tyler exactly what to paste and where — never see or handle the actual keys)
-- [ ] Confirm the "hello world" version deploys and loads on a live URL
+- [x] Tyler connects the folder to a new GitHub repo (`git init`/`git push` — Tyler authenticates)
+- [x] Tyler connects the GitHub repo to Vercel (Tyler logs in via Vercel's dashboard)
+- [x] Tyler creates a Supabase project and pastes the URL/API keys into a local `.env` file (tell Tyler exactly what to paste and where — never see or handle the actual keys)
+- [x] Confirm the "hello world" version deploys and loads on a live URL
+
+Notes:
+- Live at https://operation-obedience.vercel.app (auto-deploys on push to `master`)
+- Supabase project: `rjmxmdhuerrcxxcljnnl`. Env vars used in code: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (set locally in `.env.local` and in Vercel's dashboard as Config, not Secret, since they're `NEXT_PUBLIC_` and safe to expose client-side)
 
 ### Phase 2: User Accounts
 - [ ] Set up Supabase Auth (email/password sign up + login)
