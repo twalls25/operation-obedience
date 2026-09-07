@@ -87,12 +87,18 @@ Notes:
 - Routes: `/` (today's), `/testimonies` (archive), `/testimonies/[id]` (full text + comments), `/testimonies/new` (admin post form).
 - Verified end-to-end in browser: post as admin -> shows on home -> archive lists it -> detail page -> comment -> logged-out user redirected away from `/testimonies/new`.
 
-### Phase 5: Prayer Request Board
-- [ ] Create `prayer_requests` table (title, description, user_id, date)
-- [ ] Build the board/feed page (list of requests)
-- [ ] Build a "submit a prayer request" form
-- [ ] Wire in the shared comment system
-- [ ] Optional: add a "praying for this 🙏" reaction count
+### Phase 5: Prayer Request Board — COMPLETE
+- [x] Create `prayer_requests` table (title, description, user_id, date)
+- [x] Build the board/feed page (list of requests)
+- [x] Build a "submit a prayer request" form
+- [x] Wire in the shared comment system
+- [x] Optional: add a "praying for this 🙏" reaction count
+
+Notes:
+- Unlike testimonies, any logged-in user can submit a prayer request (no admin gate) — RLS just checks `auth.uid() = user_id`.
+- Reactions are a separate `prayer_reactions` table (one row per user per request, toggleable) rather than a counter column, so a user can only react once and can un-react.
+- Gotcha hit: embedding `profiles(name)` on `prayer_requests` was ambiguous to PostgREST once `prayer_reactions` existed, because it creates a *second* path from `prayer_requests` to `profiles` (via `prayer_reactions.user_id`). Fixed by naming the FK explicitly: `profiles!prayer_requests_user_id_fkey(name)`. Worth remembering if a future embed on a table with multiple relationships to the same target silently returns null data — check for a swallowed `error` on the query first.
+- Routes: `/prayers` (feed), `/prayers/[id]` (full text + reactions + comments), `/prayers/new` (submit form, any logged-in user).
 
 ### Phase 6: Daily Check-Ins
 - [ ] Create `checkins` table (trained + note, prayed + note, scripture + note, user_id, date)
