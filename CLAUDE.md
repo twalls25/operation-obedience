@@ -22,6 +22,9 @@ This is a "Claude writes, Tyler vets" workflow. Concretely, that means:
 - Commit logically-scoped chunks of work with clear commit messages so there are good rollback points.
 - Keep this file updated as decisions get made (e.g. note when a phase is completed, or when a design decision changes) so future sessions don't lose context.
 
+## Local dev environment notes
+- Tyler's machine has network-level TLS inspection (security software) that Node doesn't trust by default, causing `fetch failed` / `unable to verify the first certificate` errors on any outbound HTTPS call from the dev server (e.g. to Supabase) — but not from plain `node -e` scripts run outside the dev server process. Fixed by running `next dev` with `NODE_OPTIONS=--use-system-ca` (see the `dev` script in `package.json`, using `cross-env` for cross-platform env vars) so Node trusts the same root CA store Windows does. If a similar "fetch failed" error resurfaces, check this first before assuming it's a Supabase config issue.
+
 ## Shared architecture note
 Testimonies, prayer requests, and check-ins all share one reusable comments system — a single `comments` table linked by post ID to `testimony_id` / `prayer_request_id` / `checkin_id`. Build the comment component generically once, then wire it into each feature, rather than building separate comment systems per feature.
 
