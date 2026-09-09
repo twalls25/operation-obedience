@@ -27,9 +27,9 @@ This is a "Claude writes, Tyler vets" workflow. Concretely, that means:
 
 Two pragmatic exceptions to "ember is the only accent," flagged per Tyler's instruction to check in before adding colors: error banners use a dark red (`border-red-900 bg-red-950/60 text-red-300`) and there's no separate success color — success messages reuse the panel background with an ember left-border accent instead of introducing green. Revisit if Tyler wants error states to use a different treatment.
 
-**Known logo issues to address before this ships wider** (flagged per Tyler's request):
-1. **Background mismatch**: `logo.svg` bakes in its own background rect (`#17191c`) rather than being transparent, which is a slightly different shade than the site's `panel` color (`#2B2F34`) it sits on in the nav bar — this shows up as a faint but visible box around the logo. Fix requires either a transparent-background export of the SVG, or recoloring that rect to match `#2B2F34` (would need to touch the "approved" file).
-2. **Legibility at nav size**: the two-line stacked wordmark ("OPERATION" / "OBEDIENCE") with the reticle-O and sword-T/I detail is hard to read at typical nav-bar heights. Currently rendered at `h-14` (56px) in the nav as a compromise — smaller and the sword/reticle detail disappears entirely; even at this size it's not fully crisp. May need a simplified/single-line variant for small placements (nav, favicon) with the full lockup reserved for larger placements (e.g. an About page hero).
+**Known logo issues:**
+1. ~~Background mismatch~~ **Fixed**: `logo.svg` originally baked in its own background rect (`#17191c`), a slightly different shade than the site's `panel` color it sat on in the nav, showing up as a faint box. Removed the rect (the file's metadata shows it was Claude-generated, not an external designer's locked asset, so this was a safe trivial fix) — the mark itself (text, sword, reticle) is untouched, just transparent now.
+2. **Still open — legibility at nav size**: the two-line stacked wordmark ("OPERATION" / "OBEDIENCE") with the reticle-O and sword-T/I detail is hard to read at typical nav-bar heights. Currently rendered at `h-14` (56px) in the nav as a compromise — smaller and the sword/reticle detail disappears entirely; even at this size it's not fully crisp. May need a simplified/single-line variant for small placements (nav, favicon) with the full lockup reserved for larger placements (e.g. an About page hero).
 3. Emblem/favicon is intentionally still the platform default per `BRANDING.md` — not an oversight, don't touch until Tyler provides one.
 
 ## Local dev environment notes
@@ -122,20 +122,20 @@ Notes:
 - Streak logic (`src/lib/checkins/streak.ts`) counts consecutive days ending today, or ending yesterday if today isn't checked in yet (so the streak doesn't zero out mid-day before someone's checked in).
 - Routes: `/checkins` (feed + streak), `/checkins/[id]` (full notes + comments), `/checkins/new` (submit/update today's).
 
-### Phase 7: Content Library
+### Phase 7: Content Library — COMPLETE
 Replaces the earlier separate "Resources" and "Plans" ideas discussed with Tyler — folded into one feature, since a plan is really just a longer piece of browsable content, same as a book or sermon.
-- [ ] Create `resources` table (type, title, author, link, description, content, date) — code written, blocked on Tyler running `009_resources.sql`
-- [ ] Add `profiles.role` (`member`/`admin`), replacing `is_admin` — code written, blocked on Tyler running `008_admin_role.sql`
-- [ ] Content library page, filterable by type, plan cards link to a detail view, other types link out externally — code written, same migration blocker
-- [ ] Admin-only "add resource" form that adapts fields by type — code written, same migration blocker
-- [ ] Optional free-text "what are you working through" field on the check-in form — code written, blocked on Tyler running `010_checkin_working_on.sql`
+- [x] Create `resources` table (type, title, author, link, description, content, date)
+- [x] Add `profiles.role` (`member`/`admin`), replacing `is_admin`
+- [x] Content library page, filterable by type, plan cards link to a detail view, other types link out externally
+- [x] Admin-only "add resource" form that adapts fields by type
+- [x] Optional free-text "what are you working through" field on the check-in form
 
 Notes:
-- Three migrations to run in order: `008_admin_role`, `009_resources`, `010_checkin_working_on` (see `supabase/migrations/`). Tyler will set his own account's `role` to `'admin'` himself via the Supabase table editor once `008` is run.
-- `008_admin_role` also updates the testimonies insert policy to check `role = 'admin'` instead of the old `is_admin` column, then drops that column — testimonies and the Content Library now share one admin model.
+- `008_admin_role` also updated the testimonies insert policy to check `role = 'admin'` instead of the old `is_admin` column, then dropped that column — testimonies and the Content Library now share one admin model. Tyler set his own account's `role` to `'admin'` via the Supabase table editor.
 - Any current admin can add resources — no separate "owner" tier (matches how testimony-posting admin access already works).
-- `working_on` on `checkins` is plain free text with no relational link to `resources` — deliberately simple, per Tyler.
-- Not yet verified end-to-end in browser (waiting on the migrations above) — will confirm and check these off once Tyler's run them.
+- `working_on` on `checkins` is plain free text with no relational link to `resources` — deliberately simple, per Tyler. Shows on both the check-in feed card and detail page.
+- Routes: `/resources` (filterable index), `/resources/[id]` (full content — mainly for plans), `/resources/new` (admin-only, type-adaptive form — a small client component since the field set changes based on a live `<select>`, everything else in the app is server-only).
+- Verified end-to-end in browser: added a book (external link) and a plan (weekly breakdown), type filter works, plan links to its detail page with full content rendered, book links out externally, logged-out visitor redirected away from `/resources/new`, check-in "working through" field saves and displays on both feed and detail.
 
 ### Phase 8: Polish & Launch Prep
 - [ ] Build a simple nav bar / mobile-friendly layout
