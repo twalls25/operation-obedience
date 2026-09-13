@@ -10,8 +10,13 @@ export async function login(formData: FormData) {
 
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const captchaToken = formData.get("cf-turnstile-response") as string;
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+    options: { captchaToken },
+  });
 
   if (error) {
     redirect(`/login?error=${encodeURIComponent(error.message)}`);
@@ -27,12 +32,14 @@ export async function signup(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const origin = (await headers()).get("origin");
+  const captchaToken = formData.get("cf-turnstile-response") as string;
 
   const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       emailRedirectTo: `${origin}/auth/confirm`,
+      captchaToken,
     },
   });
 

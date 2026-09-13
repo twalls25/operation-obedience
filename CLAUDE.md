@@ -140,12 +140,14 @@ Notes:
 ### Phase 8: Additional Features
 Open-ended — Tyler gives these one at a time as separate prompts, don't try to guess what's coming next.
 - [x] Build the Mission page (`/mission`) from `MISSION.md`: Why We Exist, Mission Statement, What We Believe, Where We're Starting — replaces the nav's placeholder "About" slot.
+- [x] Add Cloudflare Turnstile bot/spam protection to sign-up and login
 
 Notes:
-- Static content page (`src/app/mission/page.tsx`), no database involved.
-- Scripture quotations in "Why We Exist" are styled as set-apart blockquotes (border-l-2 border-ember, italic, muted text) per the formatting note in `MISSION.md`, not just inline italics. "What We Believe"'s inline verse citations use italic ember text instead of full blockquotes, since five short numbered beliefs each with their own blockquote would be visually heavy — this wasn't explicitly specified so it's a judgment call, flag if you'd rather those be blockquotes too.
-- Nav link added as "Mission" (there was no pre-existing "About" link/page to literally replace — Phase 9's "About" checklist item is superseded by this).
-- Verified in browser end-to-end, matches `MISSION.md` content and section order exactly.
+- **Mission page**: static content page (`src/app/mission/page.tsx`), no database involved. Scripture quotations in "Why We Exist" are styled as set-apart blockquotes (border-l-2 border-ember, italic, muted text) per the formatting note in `MISSION.md`, not just inline italics. "What We Believe"'s inline verse citations use italic ember text instead of full blockquotes, since five short numbered beliefs each with their own blockquote would be visually heavy — this wasn't explicitly specified so it's a judgment call, flag if you'd rather those be blockquotes too. Nav link added as "Mission" (there was no pre-existing "About" link/page to literally replace — Phase 9's "About" checklist item is superseded by this). Verified in browser end-to-end, matches `MISSION.md` content and section order exactly.
+- **Turnstile**: added to both sign-up and login, not just sign-up — Supabase's "Bot and Abuse Protection" is a project-wide Auth setting, so once Tyler enabled it, *every* password-based auth call requires a valid `captcha_token`, not just sign-up. Confirmed this the hard way: sign-up failed with `captcha protection: request disallowed (no captcha_token found)` before login's widget was added and tested.
+  - `src/components/turnstile-widget.tsx`: renders Cloudflare's Managed widget with `data-appearance="interaction-only"` — invisible with no reserved layout space for most visitors, only expands into a visible challenge when Cloudflare's risk signals call for one. Deliberately not the older "Invisible Widget Type," which Cloudflare now discourages in favor of this.
+  - No custom client-side JS/state needed: the widget injects its own hidden `cf-turnstile-response` input, which rides along in the surrounding `<form>`'s FormData automatically. `src/app/auth/actions.ts`'s `login`/`signup` read `formData.get("cf-turnstile-response")` and pass it as `options.captchaToken` to `signInWithPassword`/`signUp`, per Supabase's documented approach.
+  - Verified the server-side plumbing is correct (submitted with no token, got Supabase's real captcha-rejection error back, not a crash) but **could not verify the "invisible for real users" path myself** — Claude's automated browser reliably gets flagged and shown the visible challenge, which is Turnstile correctly identifying automated traffic, but means an agent can't complete the happy path. Asked Tyler to confirm manually in his own browser that it stays invisible for a normal sign-up/login.
 
 ### Phase 9: Polish & Launch Prep
 - [ ] Build a simple nav bar / mobile-friendly layout

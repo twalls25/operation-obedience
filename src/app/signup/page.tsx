@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { signup } from "@/app/auth/actions";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 
 export default async function SignupPage({
   searchParams,
@@ -47,6 +48,8 @@ export default async function SignupPage({
               className="rounded-md border border-panel bg-transparent px-3 py-2 text-offwhite focus:border-ember focus:outline-none"
             />
           </label>
+
+          <TurnstileWidget />
 
           <button
             formAction={signup}
