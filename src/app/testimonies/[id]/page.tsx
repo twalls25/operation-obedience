@@ -14,7 +14,15 @@ export default async function TestimonyDetailPage({
     .from("testimonies")
     .select("id, verse_reference, verse_text, context, date, profiles(name)")
     .eq("id", id)
-    .single();
+    .single()
+    .returns<{
+      id: string;
+      verse_reference: string;
+      verse_text: string;
+      context: string;
+      date: string;
+      profiles: { name: string | null } | null;
+    }>();
 
   if (!testimony) {
     notFound();

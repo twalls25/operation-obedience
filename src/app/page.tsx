@@ -11,7 +11,15 @@ export default async function Home() {
     .lte("date", today)
     .order("date", { ascending: false })
     .limit(1)
-    .maybeSingle();
+    .maybeSingle()
+    .returns<{
+      id: string;
+      verse_reference: string;
+      verse_text: string;
+      context: string;
+      date: string;
+      profiles: { name: string | null } | null;
+    }>();
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">

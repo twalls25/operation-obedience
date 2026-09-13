@@ -37,7 +37,19 @@ export default async function CheckinDetailPage({
       "id, date, trained, trained_note, prayed, prayed_note, scripture, scripture_note, working_on, profiles(name)"
     )
     .eq("id", id)
-    .single();
+    .single()
+    .returns<{
+      id: string;
+      date: string;
+      trained: boolean;
+      trained_note: string | null;
+      prayed: boolean;
+      prayed_note: string | null;
+      scripture: boolean;
+      scripture_note: string | null;
+      working_on: string | null;
+      profiles: { name: string | null } | null;
+    }>();
 
   if (!checkin) {
     notFound();

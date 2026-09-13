@@ -13,5 +13,8 @@ export function parentColumn(parent: CommentParent): {
   if (parent.prayerRequestId) {
     return { column: "prayer_request_id", value: parent.prayerRequestId };
   }
-  return { column: "checkin_id", value: parent.checkinId };
+  // CommentParent's union guarantees checkinId is set here (the other two
+  // branches returned already) — TS can't narrow that through optional
+  // properties without a discriminant tag, hence the assertion.
+  return { column: "checkin_id", value: parent.checkinId as string };
 }

@@ -18,7 +18,15 @@ export default async function PrayerRequestDetailPage({
         "id, title, description, date, profiles!prayer_requests_user_id_fkey(name), prayer_reactions(count)"
       )
       .eq("id", id)
-      .single(),
+      .single()
+      .returns<{
+        id: string;
+        title: string;
+        description: string;
+        date: string;
+        profiles: { name: string | null } | null;
+        prayer_reactions: { count: number }[];
+      }>(),
     supabase.auth.getUser(),
   ]);
 

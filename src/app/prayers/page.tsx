@@ -11,7 +11,16 @@ export default async function PrayersPage() {
       .select(
         "id, title, date, profiles!prayer_requests_user_id_fkey(name), prayer_reactions(count)"
       )
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      .returns<
+        {
+          id: string;
+          title: string;
+          date: string;
+          profiles: { name: string | null } | null;
+          prayer_reactions: { count: number }[];
+        }[]
+      >(),
     supabase.auth.getUser(),
   ]);
 

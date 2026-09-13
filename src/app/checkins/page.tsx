@@ -24,7 +24,18 @@ export default async function CheckinsPage() {
       .from("checkins")
       .select("id, date, trained, prayed, scripture, working_on, profiles(name)")
       .order("date", { ascending: false })
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      .returns<
+        {
+          id: string;
+          date: string;
+          trained: boolean;
+          prayed: boolean;
+          scripture: boolean;
+          working_on: string | null;
+          profiles: { name: string | null } | null;
+        }[]
+      >(),
     supabase.auth.getUser(),
   ]);
 

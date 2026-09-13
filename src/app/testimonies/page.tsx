@@ -7,7 +7,15 @@ export default async function TestimoniesArchivePage() {
   const { data: testimonies } = await supabase
     .from("testimonies")
     .select("id, verse_reference, date, profiles(name)")
-    .order("date", { ascending: false });
+    .order("date", { ascending: false })
+    .returns<
+      {
+        id: string;
+        verse_reference: string;
+        date: string;
+        profiles: { name: string | null } | null;
+      }[]
+    >();
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">

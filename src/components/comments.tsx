@@ -15,7 +15,15 @@ export async function Comments(props: Props) {
       .from("comments")
       .select("id, body, created_at, profiles(name)")
       .eq(column, value)
-      .order("created_at", { ascending: true }),
+      .order("created_at", { ascending: true })
+      .returns<
+        {
+          id: string;
+          body: string;
+          created_at: string;
+          profiles: { name: string | null } | null;
+        }[]
+      >(),
     supabase.auth.getUser(),
   ]);
 

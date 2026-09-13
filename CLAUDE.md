@@ -35,7 +35,14 @@ Two pragmatic exceptions to "ember is the only accent," flagged per Tyler's inst
 ## Local dev environment notes
 - Tyler's machine has network-level TLS inspection (security software) that Node doesn't trust by default, causing `fetch failed` / `unable to verify the first certificate` errors on any outbound HTTPS call from the dev server (e.g. to Supabase) — but not from plain `node -e` scripts run outside the dev server process. Fixed by running `next dev` with `NODE_OPTIONS=--use-system-ca` (see the `dev` script in `package.json`, using `cross-env` for cross-platform env vars) so Node trusts the same root CA store Windows does. If a similar "fetch failed" error resurfaces, check this first before assuming it's a Supabase config issue.
 
-## Shared architecture note
+## Incident: production was broken from Phase 3 through Phase 8 (fixed 2026-09-13)
+**What happened**: every deploy from commit `86e8062` (Phase 3, shared comments) through `076b15e` (Turnstile) failed Vercel's production build with TypeScript errors, so Vercel kept serving the last successful build — from Phase 2, before branding, before Testimonies/Prayers/Check-Ins/Content Library/Mission even existed. The site *looked* fine in every local browser check because verification only ever used `next dev`, which does not enforce full type-checking. `next build` (what Vercel actually runs) does, and it was failing silently the whole time — nothing in the local workflow surfaced it, and none of the phase-completion notes above claiming "verified end-to-end in browser" were false, they just weren't testing the thing that actually breaks in production.
+
+**Root causes** (all fixed in the commit after this note):
+1. Supabase's TS inference treats a `profiles(name)` embed as an array (`{name: any}[]`) when there's no generated `Database` types file, even though these are all many-to-one relationships that return a single object at runtime — which is why everything worked correctly in the browser despite the type being wrong. Fixed with `.returns<T>()` on each affected query to assert the real shape, rather than generating full DB types (a bigger lift not warranted for this fix).
+2. One real type-narrowing gap in `src/lib/comments/types.ts`'s `parentColumn` (the union guarantees `checkinId` is set in the final branch, but TS can't prove it through optional-property narrowing without a discriminant tag) — fixed with a justified `as string` assertion.
+
+**Process change going forward**: run `npm run build` locally (not just `next dev`) before considering any phase/feature done, especially before telling Tyler something is "verified." This is now the actual bar, not the dev server.
 Testimonies, prayer requests, and check-ins all share one reusable comments system — a single `comments` table linked by post ID to `testimony_id` / `prayer_request_id` / `checkin_id`. Build the comment component generically once, then wire it into each feature, rather than building separate comment systems per feature.
 
 ## Build checklist
