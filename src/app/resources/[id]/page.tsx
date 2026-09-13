@@ -1,6 +1,10 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { RESOURCE_TYPE_LABELS, type ResourceType } from "@/lib/resources/types";
+import {
+  PUBLIC_RESOURCE_TYPES,
+  RESOURCE_TYPE_LABELS,
+  type ResourceType,
+} from "@/lib/resources/types";
 
 export default async function ResourceDetailPage({
   params,
@@ -10,6 +14,10 @@ export default async function ResourceDetailPage({
   const { id } = await params;
   const supabase = await createClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const { data: resource } = await supabase
     .from("resources")
     .select("id, type, title, author, description, content, link, date")
@@ -18,6 +26,10 @@ export default async function ResourceDetailPage({
 
   if (!resource) {
     notFound();
+  }
+
+  if (!user && !(PUBLIC_RESOURCE_TYPES as readonly string[]).includes(resource.type)) {
+    redirect("/login");
   }
 
   return (

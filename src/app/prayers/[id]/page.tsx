@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Comments } from "@/components/comments";
 import { toggleReaction } from "../actions";
@@ -37,16 +37,17 @@ export default async function PrayerRequestDetailPage({
     notFound();
   }
 
-  let reacted = false;
-  if (user) {
-    const { data: existing } = await supabase
-      .from("prayer_reactions")
-      .select("user_id")
-      .eq("prayer_request_id", id)
-      .eq("user_id", user.id)
-      .maybeSingle();
-    reacted = !!existing;
+  if (!user) {
+    redirect("/login");
   }
+
+  const { data: existing } = await supabase
+    .from("prayer_reactions")
+    .select("user_id")
+    .eq("prayer_request_id", id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  const reacted = !!existing;
 
   const count = request.prayer_reactions?.[0]?.count ?? 0;
 

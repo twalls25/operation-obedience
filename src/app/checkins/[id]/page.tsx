@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Comments } from "@/components/comments";
 
@@ -33,6 +33,14 @@ export default async function CheckinDetailPage({
   const { id } = await params;
   const { comment_error: commentError } = await searchParams;
   const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
 
   const { data: checkin } = await supabase
     .from("checkins")

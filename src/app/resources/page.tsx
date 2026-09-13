@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { RESOURCE_TYPES, RESOURCE_TYPE_LABELS, type ResourceType } from "@/lib/resources/types";
+import {
+  RESOURCE_TYPES,
+  PUBLIC_RESOURCE_TYPES,
+  RESOURCE_TYPE_LABELS,
+  type ResourceType,
+} from "@/lib/resources/types";
 
 function FilterLink({
   active,
@@ -41,13 +46,19 @@ export default async function ResourcesPage({
     ? await supabase.from("profiles").select("role").eq("id", user.id).single()
     : { data: null };
 
+  // Logged-out visitors only get book/sermon/article — plan/video require
+  // an account (see CLAUDE.md's "Public vs member visibility" note).
+  const visibleTypes: readonly string[] = user ? RESOURCE_TYPES : PUBLIC_RESOURCE_TYPES;
+  const effectiveType = type && visibleTypes.includes(type) ? type : undefined;
+
   let query = supabase
     .from("resources")
     .select("id, type, title, author, description, link, date")
+    .in("type", visibleTypes)
     .order("date", { ascending: false });
 
-  if (type) {
-    query = query.eq("type", type);
+  if (effectiveType) {
+    query = query.eq("type", effectiveType);
   }
 
   const { data: resources } = await query;
@@ -67,12 +78,12 @@ export default async function ResourcesPage({
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <FilterLink active={!type} href="/resources">
+        <FilterLink active={!effectiveType} href="/resources">
           All
         </FilterLink>
-        {RESOURCE_TYPES.map((t) => (
-          <FilterLink key={t} active={type === t} href={`/resources?type=${t}`}>
-            {RESOURCE_TYPE_LABELS[t]}
+        {visibleTypes.map((t) => (
+          <FilterLink key={t} active={effectiveType === t} href={`/resources?type=${t}`}>
+            {RESOURCE_TYPE_LABELS[t as ResourceType]}
           </FilterLink>
         ))}
       </div>
@@ -114,6 +125,15 @@ export default async function ResourcesPage({
           <p className="text-sm text-muted">Nothing here yet.</p>
         )}
       </ul>
+
+      {!user && (
+        <p className="mt-8 text-sm text-muted">
+          <Link href="/signup" className="text-ember hover:underline">
+            Sign up
+          </Link>{" "}
+          for access to plans, videos, and the rest of the brotherhood.
+        </p>
+      )}
     </main>
   );
 }

@@ -1,9 +1,14 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getActivePrayerCount } from "@/lib/prayers";
 
 export default async function Home() {
   const supabase = await createClient();
   const today = new Date().toISOString().slice(0, 10);
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const { data: testimony } = await supabase
     .from("testimonies")
@@ -38,12 +43,21 @@ export default async function Home() {
           </blockquote>
           <p className="mt-4 whitespace-pre-wrap text-offwhite">{testimony.context}</p>
 
-          <Link
-            href={`/testimonies/${testimony.id}`}
-            className="mt-4 inline-block text-ember hover:underline"
-          >
-            View & discuss
-          </Link>
+          {user ? (
+            <Link
+              href={`/testimonies/${testimony.id}`}
+              className="mt-4 inline-block text-ember hover:underline"
+            >
+              View & discuss
+            </Link>
+          ) : (
+            <p className="mt-4 text-sm text-muted">
+              <Link href="/login" className="text-ember hover:underline">
+                Log in
+              </Link>{" "}
+              to join the discussion.
+            </p>
+          )}
         </div>
       ) : (
         <p className="mt-6 text-muted">
@@ -51,11 +65,38 @@ export default async function Home() {
         </p>
       )}
 
-      <p className="mt-8 text-sm">
-        <Link href="/testimonies" className="text-ember hover:underline">
-          Browse the archive
-        </Link>
-      </p>
+      {user ? (
+        <p className="mt-8 text-sm">
+          <Link href="/testimonies" className="text-ember hover:underline">
+            Browse the archive
+          </Link>
+        </p>
+      ) : (
+        <PrayerTeaser supabase={supabase} />
+      )}
     </main>
+  );
+}
+
+async function PrayerTeaser({
+  supabase,
+}: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+}) {
+  const count = await getActivePrayerCount(supabase);
+
+  return (
+    <div className="mt-8 rounded-md border border-panel bg-panel/40 p-4">
+      <p className="text-offwhite">
+        {count} active prayer request{count === 1 ? "" : "s"} from our
+        brotherhood.
+      </p>
+      <p className="mt-2 text-sm text-muted">
+        <Link href="/signup" className="text-ember hover:underline">
+          Join us
+        </Link>{" "}
+        to view the board and pray with your brothers.
+      </p>
+    </div>
   );
 }

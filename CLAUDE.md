@@ -50,6 +50,31 @@ Two pragmatic exceptions to "ember is the only accent," flagged per Tyler's inst
 ## Shared architecture note
 Testimonies, prayer requests, and check-ins all share one reusable comments system — a single `comments` table linked by post ID to `testimony_id` / `prayer_request_id` / `checkin_id`. Build the comment component generically once, then wire it into each feature, rather than building separate comment systems per feature.
 
+## Public vs member visibility model
+Added in Phase 8. This is the standing reference for what's public vs. members-only — check here before adding a new page rather than guessing.
+
+**Public (no login required):**
+- `/mission` — always public, no auth check needed.
+- `/` (home) — today's testimony full text is public. The comment thread underneath it is not (see "message board" below) — logged-out visitors see "Log in to join the discussion" instead of a link to the detail page. Also shows a prayer-request count teaser (see below) in place of the "Browse the archive" link.
+- `/resources` and `/resources/[id]` — filtered, not redirected: logged-out visitors only see `book`/`sermon`/`article` types (`PUBLIC_RESOURCE_TYPES` in `src/lib/resources/types.ts`); `plan`/`video` are excluded from listings and filter tabs, and direct access to a `plan`/`video` resource's detail page redirects to `/login`. `/resources/new` (admin-only) is unaffected.
+- `/prayers` — branches instead of redirecting: logged-out visitors get a count-only summary ("N active prayer requests from our brotherhood" + a log in/sign up prompt, via `src/lib/prayers.ts`'s `getActivePrayerCount`), not the list. `/prayers/[id]` (individual requests) redirects logged-out visitors to `/login`.
+- `/charities` — public, currently a placeholder (see Phase 8 notes — content not yet provided).
+- `/contact` — public, Turnstile-protected (see Phase 8 notes on Turnstile for non-Auth forms).
+
+**Members-only (redirect to `/login` if logged out):**
+- `/testimonies` (archive) and `/testimonies/[id]` (detail + comments) — only today's testimony is public, and only on the home page.
+- `/prayers/[id]` and the full `/prayers` board (see above — same route, branches on auth).
+- `/checkins`, `/checkins/[id]`, `/checkins/new` — check-ins are members-only in full, no public teaser.
+- `plan`/`video` resources specifically (see above — same routes as the public types, branches per-resource).
+- The comment/discussion system generally ("the message board") — viewing and posting both require login, everywhere it's embedded (testimonies/prayers/checkins detail pages). This is a judgment call on ambiguous wording, flagged in Phase 8 notes.
+- `/profile`, `/resources/new`, `/testimonies/new`, `/prayers/new`, `/admin/*` — unchanged, already required login (some also require admin).
+
+**How to extend this for a new page:**
+- **Fully members-only**: near the top of the page component, `const { data: { user } } = await supabase.auth.getUser(); if (!user) redirect("/login");` — same pattern used throughout. Add its nav link inside `nav.tsx`'s `{user && (...)}` block.
+- **Fully public**: no auth check at all. Add its nav link outside the `{user && (...)}` block (still inside the nav, so it always renders).
+- **Partial/teaser** (some content public, more behind login — like `/prayers` and `/resources`): don't redirect the whole route. Fetch `user` first, then branch what you query/render based on its presence, same shape as `/prayers/page.tsx` or `/resources/page.tsx`.
+- The nav bar itself lives in `src/components/nav.tsx` and already computes `user` and `isAdmin` — reuse those rather than re-fetching.
+
 ## Build checklist
 
 ### Phase 0: Setup (Tyler — done outside Claude Code)
@@ -156,8 +181,12 @@ Open-ended — Tyler gives these one at a time as separate prompts, don't try to
 - [x] Widen `profiles.role` to allow a `partner` value
 - [x] Admin moderation toolkit: delete any comment (with a notification email), restrict/ban members, admin members list with one-off custom emails
 - [x] Contact Us page: public form (name/email/message), Turnstile-protected, stores to `contact_messages` and emails `tyler@ironshepherdsystems.com`
+- [x] Public/member visibility layer across the app — see "Public vs member visibility model" section below for the reference model and how to extend it
 
 Notes:
+- **Public/member visibility layer**: full model documented in its own section below (search "Public vs member visibility model") since it's meant to be a standing reference for future pages, not a one-time note. Summary of what changed: `/testimonies` archive, `/testimonies/[id]`, `/checkins`, `/checkins/[id]`, and `/prayers/[id]` now redirect logged-out visitors to `/login` (previously public); `/prayers` branches to a count-only summary when logged out instead of redirecting; `/resources` and `/resources/[id]` filter out `plan`/`video` types for logged-out visitors instead of redirecting; new `/charities` page (public, currently a placeholder — no content provided yet, flagged to Tyler, not fabricated); nav branches on auth state.
+- **Charities page content still needed**: `/charities` is a structural placeholder ("check back soon") — Tyler hasn't provided the actual organizations/descriptions/links yet, and none were invented. Also still open: whether it should be a static page (like Mission) or an admin-manageable list (like Content Library) for Tyler to maintain himself later.
+- **"Message board" interpretation (judgment call, not explicitly confirmed)**: Tyler's members-only list named "the message board" separately from "the full prayer request board," but nothing in the app is literally named that. Interpreted as the comment/discussion system itself — meaning viewing (not just posting) comments now requires login everywhere, including on today's public testimony. Its full text still shows on the home page for everyone, but the "View & discuss" link/detail page (where its comments live) is members-only like every other detail page. Flag to Tyler if this wasn't the intent.
 - **Contact Us page** (`/contact`, public, no login required): stores every submission in `contact_messages` (admin-readable via RLS, though there's no browsing UI for it yet — it's durable backup storage in case the email gets lost, not a feature in itself) and sends a notification to `tyler@ironshepherdsystems.com` via Resend, best-effort (storage succeeds even if the email fails, same pattern as comment-removal notices).
   - This is the first Turnstile-protected form that **isn't** a Supabase Auth call — sign-up/login get their token verified by Supabase internally using the secret key Tyler gave Supabase directly, but a plain table insert has nothing verifying the token unless the app does it. Added `src/lib/turnstile.ts`'s `verifyTurnstileToken()`, which calls Cloudflare's `siteverify` API directly using a new `TURNSTILE_SECRET_KEY` env var (server-only, distinct from the `NEXT_PUBLIC_` site key) — `submitContactMessage` rejects the submission if this fails. Confirmed the secret key itself is valid via a one-off `node -e` script against Cloudflare's API before wiring it in (got back `invalid-input-response` for a deliberately fake token, not `invalid-input-secret`, meaning Cloudflare recognized the secret and only rejected the fake token as expected).
   - Any future Turnstile-protected form that doesn't go through Supabase Auth needs this same manual verification step — it's not automatic just because the widget is present.

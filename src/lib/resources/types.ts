@@ -9,3 +9,7 @@ export const RESOURCE_TYPE_LABELS: Record<ResourceType, string> = {
   article: "Article",
   plan: "Plan",
 };
+
+// Logged-out visitors only see these types (see CLAUDE.md's "Public vs
+// member visibility" note) — plan/video require an account.
+export const PUBLIC_RESOURCE_TYPES = ["book", "sermon", "article"] as const;

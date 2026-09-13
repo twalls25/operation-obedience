@@ -24,21 +24,31 @@ export async function Nav() {
         <Link href="/mission" className="text-sm text-ember hover:underline">
           Mission
         </Link>
-        <Link href="/testimonies" className="text-sm text-ember hover:underline">
-          Testimonies
-        </Link>
-        <Link href="/prayers" className="text-sm text-ember hover:underline">
-          Prayer Requests
-        </Link>
-        <Link href="/checkins" className="text-sm text-ember hover:underline">
-          Check-Ins
-        </Link>
+
+        {user && (
+          <>
+            <Link href="/testimonies" className="text-sm text-ember hover:underline">
+              Testimonies
+            </Link>
+            <Link href="/prayers" className="text-sm text-ember hover:underline">
+              Prayer Requests
+            </Link>
+            <Link href="/checkins" className="text-sm text-ember hover:underline">
+              Check-Ins
+            </Link>
+          </>
+        )}
+
         <Link href="/resources" className="text-sm text-ember hover:underline">
           Content Library
+        </Link>
+        <Link href="/charities" className="text-sm text-ember hover:underline">
+          Charities
         </Link>
         <Link href="/contact" className="text-sm text-ember hover:underline">
           Contact
         </Link>
+
         {isAdmin && (
           <>
             <Link href="/testimonies/new" className="text-sm text-ember hover:underline">

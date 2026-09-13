@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { computeStreak } from "@/lib/checkins/streak";
 
@@ -19,55 +20,53 @@ function Badge({ active, children }: { active: boolean; children: React.ReactNod
 export default async function CheckinsPage() {
   const supabase = await createClient();
 
-  const [{ data: checkins }, { data: { user } }] = await Promise.all([
-    supabase
-      .from("checkins")
-      .select("id, date, trained, prayed, scripture, working_on, profiles(name)")
-      .order("date", { ascending: false })
-      .order("created_at", { ascending: false })
-      .returns<
-        {
-          id: string;
-          date: string;
-          trained: boolean;
-          prayed: boolean;
-          scripture: boolean;
-          working_on: string | null;
-          profiles: { name: string | null } | null;
-        }[]
-      >(),
-    supabase.auth.getUser(),
-  ]);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  let streak = 0;
-  if (user) {
-    const { data: myCheckins } = await supabase
-      .from("checkins")
-      .select("date")
-      .eq("user_id", user.id)
-      .order("date", { ascending: false });
-    streak = computeStreak(myCheckins?.map((c) => c.date) ?? []);
+  if (!user) {
+    redirect("/login");
   }
+
+  const { data: checkins } = await supabase
+    .from("checkins")
+    .select("id, date, trained, prayed, scripture, working_on, profiles(name)")
+    .order("date", { ascending: false })
+    .order("created_at", { ascending: false })
+    .returns<
+      {
+        id: string;
+        date: string;
+        trained: boolean;
+        prayed: boolean;
+        scripture: boolean;
+        working_on: string | null;
+        profiles: { name: string | null } | null;
+      }[]
+    >();
+
+  const { data: myCheckins } = await supabase
+    .from("checkins")
+    .select("date")
+    .eq("user_id", user.id)
+    .order("date", { ascending: false });
+  const streak = computeStreak(myCheckins?.map((c) => c.date) ?? []);
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-offwhite">Daily Check-Ins</h1>
-          {user && (
-            <p className="mt-1 text-sm text-muted">
-              Your streak: {streak} {streak === 1 ? "day" : "days"}
-            </p>
-          )}
+          <p className="mt-1 text-sm text-muted">
+            Your streak: {streak} {streak === 1 ? "day" : "days"}
+          </p>
         </div>
-        {user && (
-          <Link
-            href="/checkins/new"
-            className="rounded-md bg-ember px-4 py-2 text-sm font-medium text-charcoal hover:bg-ember/90"
-          >
-            Check in today
-          </Link>
-        )}
+        <Link
+          href="/checkins/new"
+          className="rounded-md bg-ember px-4 py-2 text-sm font-medium text-charcoal hover:bg-ember/90"
+        >
+          Check in today
+        </Link>
       </div>
 
       <ul className="mt-6 flex flex-col gap-3">
