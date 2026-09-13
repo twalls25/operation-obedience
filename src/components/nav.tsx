@@ -36,6 +36,9 @@ export async function Nav() {
         <Link href="/resources" className="text-sm text-ember hover:underline">
           Content Library
         </Link>
+        <Link href="/contact" className="text-sm text-ember hover:underline">
+          Contact
+        </Link>
         {isAdmin && (
           <>
             <Link href="/testimonies/new" className="text-sm text-ember hover:underline">
