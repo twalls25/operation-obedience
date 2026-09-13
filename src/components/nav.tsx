@@ -21,6 +21,9 @@ export async function Nav() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.svg" alt="Operation Obedience" className="h-14 w-auto" />
         </Link>
+        <Link href="/mission" className="text-sm text-ember hover:underline">
+          Mission
+        </Link>
         <Link href="/testimonies" className="text-sm text-ember hover:underline">
           Testimonies
         </Link>

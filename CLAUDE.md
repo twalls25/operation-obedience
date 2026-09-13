@@ -137,9 +137,19 @@ Notes:
 - Routes: `/resources` (filterable index), `/resources/[id]` (full content — mainly for plans), `/resources/new` (admin-only, type-adaptive form — a small client component since the field set changes based on a live `<select>`, everything else in the app is server-only).
 - Verified end-to-end in browser: added a book (external link) and a plan (weekly breakdown), type filter works, plan links to its detail page with full content rendered, book links out externally, logged-out visitor redirected away from `/resources/new`, check-in "working through" field saves and displays on both feed and detail.
 
-### Phase 8: Polish & Launch Prep
+### Phase 8: Additional Features
+Open-ended — Tyler gives these one at a time as separate prompts, don't try to guess what's coming next.
+- [x] Build the Mission page (`/mission`) from `MISSION.md`: Why We Exist, Mission Statement, What We Believe, Where We're Starting — replaces the nav's placeholder "About" slot.
+
+Notes:
+- Static content page (`src/app/mission/page.tsx`), no database involved.
+- Scripture quotations in "Why We Exist" are styled as set-apart blockquotes (border-l-2 border-ember, italic, muted text) per the formatting note in `MISSION.md`, not just inline italics. "What We Believe"'s inline verse citations use italic ember text instead of full blockquotes, since five short numbered beliefs each with their own blockquote would be visually heavy — this wasn't explicitly specified so it's a judgment call, flag if you'd rather those be blockquotes too.
+- Nav link added as "Mission" (there was no pre-existing "About" link/page to literally replace — Phase 9's "About" checklist item is superseded by this).
+- Verified in browser end-to-end, matches `MISSION.md` content and section order exactly.
+
+### Phase 9: Polish & Launch Prep
 - [ ] Build a simple nav bar / mobile-friendly layout
-- [ ] Add a basic "About Operation Obedience" page
+- [x] Add a basic "About Operation Obedience" page — built early as the Mission page, see Phase 8
 - [ ] Add basic error handling (empty states, loading states)
 - [ ] Test full flow on an actual phone browser
 - [ ] Invite a small group of test users (5–10 guys) before wider launch
