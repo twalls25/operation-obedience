@@ -70,10 +70,11 @@ export async function sendMemberEmail(memberId: string, formData: FormData) {
 
   try {
     await sendEmail({ to: member.email, subject, text: message });
-  } catch {
+  } catch (e) {
+    const reason = e instanceof Error ? e.message : "Unknown error";
     redirect(
       `/admin/members/${memberId}?error=${encodeURIComponent(
-        "Failed to send email."
+        `Failed to send email: ${reason}`
       )}`
     );
   }
