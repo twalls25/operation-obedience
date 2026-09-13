@@ -27,7 +27,35 @@ export async function updateSession(request: NextRequest) {
 
   // Refresh the session if expired. Required for Server Components, which
   // can't write cookies themselves.
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("status")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.status === "banned") {
+      await supabase.auth.signOut();
+
+      const redirectUrl = new URL("/login", request.url);
+      redirectUrl.searchParams.set(
+        "error",
+        "Your account has been suspended."
+      );
+      const redirectResponse = NextResponse.redirect(redirectUrl);
+      // Carry over cookies mutated above (session refresh, then signOut's
+      // clearing cookies), since they landed on supabaseResponse via the
+      // cookie adapter's closure, not on this new response.
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(cookie);
+      });
+      return redirectResponse;
+    }
+  }
 
   return supabaseResponse;
 }

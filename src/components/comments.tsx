@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { addComment } from "@/lib/comments/actions";
+import { addComment, deleteComment } from "@/lib/comments/actions";
 import { parentColumn, type CommentParent } from "@/lib/comments/types";
 
-type Props = CommentParent & { path: string };
+type Props = CommentParent & { path: string; error?: string };
 
 export async function Comments(props: Props) {
-  const { path, ...parent } = props;
+  const { path, error, ...parent } = props;
   const { column, value } = parentColumn(parent);
   const supabase = await createClient();
 
@@ -27,6 +27,16 @@ export async function Comments(props: Props) {
     supabase.auth.getUser(),
   ]);
 
+  let isAdmin = false;
+  if (user) {
+    const { data: viewerProfile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    isAdmin = viewerProfile?.role === "admin";
+  }
+
   return (
     <section className="mt-8 flex flex-col gap-4">
       <h2 className="text-lg font-semibold text-offwhite">Comments</h2>
@@ -38,9 +48,21 @@ export async function Comments(props: Props) {
               key={comment.id}
               className="rounded-md border border-panel bg-panel/40 p-3 text-sm"
             >
-              <p className="font-medium text-ember">
-                {comment.profiles?.name ?? "A brother"}
-              </p>
+              <div className="flex items-start justify-between gap-2">
+                <p className="font-medium text-ember">
+                  {comment.profiles?.name ?? "A brother"}
+                </p>
+                {isAdmin && (
+                  <form action={deleteComment.bind(null, comment.id, path)}>
+                    <button
+                      type="submit"
+                      className="text-xs text-muted hover:text-red-400"
+                    >
+                      Delete
+                    </button>
+                  </form>
+                )}
+              </div>
               <p className="mt-1 whitespace-pre-wrap text-offwhite">{comment.body}</p>
             </li>
           ))
@@ -48,6 +70,12 @@ export async function Comments(props: Props) {
           <p className="text-sm text-muted">No comments yet.</p>
         )}
       </ul>
+
+      {error && (
+        <p className="rounded-md border border-red-900 bg-red-950/60 px-3 py-2 text-sm text-red-300">
+          {error}
+        </p>
+      )}
 
       {user ? (
         <form

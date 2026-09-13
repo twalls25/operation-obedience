@@ -4,10 +4,13 @@ import { Comments } from "@/components/comments";
 
 export default async function TestimonyDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ comment_error?: string }>;
 }) {
   const { id } = await params;
+  const { comment_error: commentError } = await searchParams;
   const supabase = await createClient();
 
   const { data: testimony } = await supabase
@@ -39,7 +42,11 @@ export default async function TestimonyDetailPage({
       </blockquote>
       <p className="mt-4 whitespace-pre-wrap text-offwhite">{testimony.context}</p>
 
-      <Comments testimonyId={testimony.id} path={`/testimonies/${testimony.id}`} />
+      <Comments
+        testimonyId={testimony.id}
+        path={`/testimonies/${testimony.id}`}
+        error={commentError}
+      />
     </main>
   );
 }

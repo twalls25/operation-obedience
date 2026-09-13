@@ -5,10 +5,13 @@ import { toggleReaction } from "../actions";
 
 export default async function PrayerRequestDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ comment_error?: string }>;
 }) {
   const { id } = await params;
+  const { comment_error: commentError } = await searchParams;
   const supabase = await createClient();
 
   const [{ data: request }, { data: { user } }] = await Promise.all([
@@ -71,7 +74,11 @@ export default async function PrayerRequestDetailPage({
         </button>
       </form>
 
-      <Comments prayerRequestId={request.id} path={`/prayers/${request.id}`} />
+      <Comments
+        prayerRequestId={request.id}
+        path={`/prayers/${request.id}`}
+        error={commentError}
+      />
     </main>
   );
 }

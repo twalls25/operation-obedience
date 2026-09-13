@@ -37,9 +37,14 @@ export async function Nav() {
           Content Library
         </Link>
         {isAdmin && (
-          <Link href="/testimonies/new" className="text-sm text-ember hover:underline">
-            Post testimony
-          </Link>
+          <>
+            <Link href="/testimonies/new" className="text-sm text-ember hover:underline">
+              Post testimony
+            </Link>
+            <Link href="/admin/members" className="text-sm text-ember hover:underline">
+              Members
+            </Link>
+          </>
         )}
       </div>
 

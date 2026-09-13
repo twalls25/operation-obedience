@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { isActiveUser, RESTRICTED_MESSAGE } from "@/lib/moderation";
 
 export async function createResource(formData: FormData) {
   const supabase = await createClient();
@@ -13,6 +14,10 @@ export async function createResource(formData: FormData) {
 
   if (!user) {
     redirect("/login");
+  }
+
+  if (!(await isActiveUser(supabase, user.id))) {
+    redirect(`/resources/new?error=${encodeURIComponent(RESTRICTED_MESSAGE)}`);
   }
 
   const type = formData.get("type") as string;

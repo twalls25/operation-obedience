@@ -25,10 +25,13 @@ function CheckinItem({
 
 export default async function CheckinDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ comment_error?: string }>;
 }) {
   const { id } = await params;
+  const { comment_error: commentError } = await searchParams;
   const supabase = await createClient();
 
   const { data: checkin } = await supabase
@@ -78,7 +81,11 @@ export default async function CheckinDetailPage({
         </p>
       )}
 
-      <Comments checkinId={checkin.id} path={`/checkins/${checkin.id}`} />
+      <Comments
+        checkinId={checkin.id}
+        path={`/checkins/${checkin.id}`}
+        error={commentError}
+      />
     </main>
   );
 }
