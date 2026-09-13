@@ -43,6 +43,10 @@ Two pragmatic exceptions to "ember is the only accent," flagged per Tyler's inst
 2. One real type-narrowing gap in `src/lib/comments/types.ts`'s `parentColumn` (the union guarantees `checkinId` is set in the final branch, but TS can't prove it through optional-property narrowing without a discriminant tag) — fixed with a justified `as string` assertion.
 
 **Process change going forward**: run `npm run build` locally (not just `next dev`) before considering any phase/feature done, especially before telling Tyler something is "verified." This is now the actual bar, not the dev server.
+
+**Resolved**: commit `2d50c34` deployed successfully (Vercel shows "Ready"). Confirmed live: full branding/logo/nav restored, and Tyler tested a real sign-up on the live site — got the confirmation email, logged in, no visible Turnstile challenge (it solved invisibly in the background, as designed).
+
+## Shared architecture note
 Testimonies, prayer requests, and check-ins all share one reusable comments system — a single `comments` table linked by post ID to `testimony_id` / `prayer_request_id` / `checkin_id`. Build the comment component generically once, then wire it into each feature, rather than building separate comment systems per feature.
 
 ## Build checklist
