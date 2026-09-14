@@ -31,7 +31,7 @@ export default async function CharitiesPage() {
         )}
       </div>
       <p className="mt-1 text-sm text-muted">
-        Organizations we partner with and support.
+        Organizations we partner with and/or support.
       </p>
 
       <ul className="mt-6 flex flex-col gap-3">
@@ -59,7 +59,7 @@ export default async function CharitiesPage() {
         ) : (
           <p className="text-sm text-muted">
             We&apos;re putting together the list of organizations we partner
-            with and support. Check back soon.
+            with and/or support. Check back soon.
           </p>
         )}
       </ul>
