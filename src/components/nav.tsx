@@ -45,6 +45,9 @@ export async function Nav() {
         <Link href="/charities" className="text-sm text-ember hover:underline">
           Charities
         </Link>
+        <Link href="/podcast" className="text-sm text-ember hover:underline">
+          Podcast
+        </Link>
         <Link href="/contact" className="text-sm text-ember hover:underline">
           Contact
         </Link>
