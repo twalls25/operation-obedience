@@ -30,6 +30,20 @@ export async function updateMemberStatus(memberId: string, formData: FormData) {
   const supabase = await createClient();
   await requireAdmin(supabase);
 
+  const { data: target } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", memberId)
+    .single();
+
+  if (target?.role === "admin") {
+    redirect(
+      `/admin/members/${memberId}?error=${encodeURIComponent(
+        "Admin status can only be changed by Tyler directly, not through this page."
+      )}`
+    );
+  }
+
   const status = formData.get("status") as string;
 
   const { error } = await supabase

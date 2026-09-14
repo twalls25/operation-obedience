@@ -77,31 +77,40 @@ export default async function AdminMemberDetailPage({
 
       <section className="mt-8">
         <h2 className="text-lg font-semibold text-offwhite">Status</h2>
-        <form
-          action={updateMemberStatus.bind(null, member.id)}
-          className="mt-3 flex items-center gap-3"
-        >
-          <select
-            name="status"
-            defaultValue={member.status}
-            className="rounded-md border border-panel bg-charcoal px-3 py-2 text-offwhite focus:border-ember focus:outline-none"
-          >
-            <option value="active">Active</option>
-            <option value="restricted">Restricted</option>
-            <option value="banned">Banned</option>
-          </select>
-          <button
-            type="submit"
-            className="rounded-md bg-ember px-4 py-2 text-sm font-medium text-charcoal hover:bg-ember/90"
-          >
-            Update status
-          </button>
-        </form>
-        <p className="mt-2 text-xs text-muted">
-          Restricted members can log in and view content but can&apos;t post
-          or comment. Banned members are signed out and blocked from logging
-          in.
-        </p>
+        {member.role === "admin" ? (
+          <p className="mt-3 text-sm text-muted">
+            This member is an admin — admin status can only be changed by
+            Tyler directly at the database level, not through this page.
+          </p>
+        ) : (
+          <>
+            <form
+              action={updateMemberStatus.bind(null, member.id)}
+              className="mt-3 flex items-center gap-3"
+            >
+              <select
+                name="status"
+                defaultValue={member.status}
+                className="rounded-md border border-panel bg-charcoal px-3 py-2 text-offwhite focus:border-ember focus:outline-none"
+              >
+                <option value="active">Active</option>
+                <option value="restricted">Restricted</option>
+                <option value="banned">Banned</option>
+              </select>
+              <button
+                type="submit"
+                className="rounded-md bg-ember px-4 py-2 text-sm font-medium text-charcoal hover:bg-ember/90"
+              >
+                Update status
+              </button>
+            </form>
+            <p className="mt-2 text-xs text-muted">
+              Restricted members can log in and view content but can&apos;t
+              post or comment. Banned members are signed out and blocked from
+              logging in.
+            </p>
+          </>
+        )}
       </section>
 
       <section className="mt-8">
