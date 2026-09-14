@@ -4,4 +4,4 @@
 // auth redirects, which correctly derive from the request's own origin so
 // local dev / preview deploys keep working).
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://operation-obedience.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://operationobedience.org";
