@@ -2,10 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { isActiveUser, RESTRICTED_MESSAGE } from "@/lib/moderation";
 import { sendEmail } from "@/lib/email";
+import { SITE_URL } from "@/lib/site";
 import { parentColumn, type CommentParent } from "./types";
 
 export async function addComment(
@@ -40,7 +40,11 @@ export async function addComment(
 
   if (error) {
     console.error("ADD COMMENT ERROR", error.message);
-    return;
+    redirect(
+      `${path}?comment_error=${encodeURIComponent(
+        "Something went wrong posting your comment. Please try again."
+      )}`
+    );
   }
 
   revalidatePath(path);
@@ -75,21 +79,31 @@ export async function deleteComment(commentId: string, path: string) {
 
   const { error } = await supabase.from("comments").delete().eq("id", commentId);
 
-  if (!error && comment?.user_id) {
+  if (error) {
+    console.error("DELETE COMMENT ERROR", error.message);
+    redirect(
+      `${path}?comment_error=${encodeURIComponent(
+        "Could not delete that comment. Please try again."
+      )}`
+    );
+  }
+
+  if (comment?.user_id) {
     const { data: authorProfile } = await supabase
       .rpc("admin_get_profiles")
       .eq("id", comment.user_id)
       .maybeSingle<{ email: string | null }>();
 
     if (authorProfile?.email) {
-      const origin = (await headers()).get("origin");
       try {
         await sendEmail({
           to: authorProfile.email,
           subject: "A comment you posted was removed",
-          text: `Hi,\n\nA comment you recently posted on Operation Obedience was removed for violating our community guidelines.\n\nYou can review our Community Guidelines here: ${origin}/guidelines\n\nIf you have questions, please reach out to an admin.\n\n— Operation Obedience`,
+          text: `Hi,\n\nA comment you recently posted on Operation Obedience was removed for violating our community guidelines.\n\nYou can review our Community Guidelines here: ${SITE_URL}/guidelines\n\nIf you have questions, please reach out to an admin.\n\n— Operation Obedience`,
         });
       } catch (e) {
+        // Deletion already succeeded above; the notification is
+        // best-effort and shouldn't block or fail the admin's action.
         console.error("Failed to send comment-removal email", e);
       }
     }

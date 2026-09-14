@@ -54,15 +54,17 @@ export async function toggleReaction(prayerRequestId: string, path: string) {
     .maybeSingle();
 
   if (existing) {
-    await supabase
+    const { error } = await supabase
       .from("prayer_reactions")
       .delete()
       .eq("prayer_request_id", prayerRequestId)
       .eq("user_id", user.id);
+    if (error) console.error("REMOVE REACTION ERROR", error.message);
   } else {
-    await supabase
+    const { error } = await supabase
       .from("prayer_reactions")
       .insert({ prayer_request_id: prayerRequestId, user_id: user.id });
+    if (error) console.error("ADD REACTION ERROR", error.message);
   }
 
   revalidatePath(path);
