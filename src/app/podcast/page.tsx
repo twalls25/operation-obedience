@@ -72,7 +72,9 @@ export default async function PodcastPage() {
             </li>
           ))
         ) : (
-          <p className="text-sm text-muted">No episodes yet. Check back soon.</p>
+          <p className="text-sm text-muted">
+            Coming soon! Our first episode is on the way.
+          </p>
         )}
       </ul>
     </main>
