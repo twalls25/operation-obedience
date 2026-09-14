@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { isActiveUser, RESTRICTED_MESSAGE } from "@/lib/moderation";
 import { sendEmail } from "@/lib/email";
@@ -81,11 +82,12 @@ export async function deleteComment(commentId: string, path: string) {
       .maybeSingle<{ email: string | null }>();
 
     if (authorProfile?.email) {
+      const origin = (await headers()).get("origin");
       try {
         await sendEmail({
           to: authorProfile.email,
           subject: "A comment you posted was removed",
-          text: "Hi,\n\nA comment you recently posted on Operation Obedience was removed for violating our community guidelines.\n\nIf you have questions, please reach out to an admin.\n\n— Operation Obedience",
+          text: `Hi,\n\nA comment you recently posted on Operation Obedience was removed for violating our community guidelines.\n\nYou can review our Community Guidelines here: ${origin}/guidelines\n\nIf you have questions, please reach out to an admin.\n\n— Operation Obedience`,
         });
       } catch (e) {
         console.error("Failed to send comment-removal email", e);
