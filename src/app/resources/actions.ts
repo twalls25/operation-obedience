@@ -16,6 +16,16 @@ export async function createResource(formData: FormData) {
     redirect("/login");
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.role !== "admin") {
+    redirect("/resources");
+  }
+
   if (!(await isActiveUser(supabase, user.id))) {
     redirect(`/resources/new?error=${encodeURIComponent(RESTRICTED_MESSAGE)}`);
   }

@@ -15,6 +15,16 @@ export async function createCharity(formData: FormData) {
     redirect("/login");
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.role !== "admin") {
+    redirect("/charities");
+  }
+
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
   const link = (formData.get("link") as string) || null;

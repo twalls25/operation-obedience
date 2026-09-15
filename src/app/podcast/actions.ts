@@ -15,6 +15,16 @@ export async function createPodcastEpisode(formData: FormData) {
     redirect("/login");
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.role !== "admin") {
+    redirect("/podcast");
+  }
+
   const title = formData.get("title") as string;
   const date = formData.get("date") as string;
   const spotify_url = (formData.get("spotify_url") as string) || null;

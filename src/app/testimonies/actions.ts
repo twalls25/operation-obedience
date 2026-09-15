@@ -16,6 +16,16 @@ export async function createTestimony(formData: FormData) {
     redirect("/login");
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.role !== "admin") {
+    redirect("/");
+  }
+
   if (!(await isActiveUser(supabase, user.id))) {
     redirect(`/testimonies/new?error=${encodeURIComponent(RESTRICTED_MESSAGE)}`);
   }
