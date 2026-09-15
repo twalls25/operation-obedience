@@ -14,6 +14,7 @@ export function NavClient({ userEmail, isAdmin }: Props) {
 
   const links: { href: string; label: string }[] = [
     { href: "/mission", label: "Mission" },
+    { href: "/message-board", label: "Message Board" },
     ...(userEmail
       ? [
           { href: "/testimonies", label: "Testimonies" },
