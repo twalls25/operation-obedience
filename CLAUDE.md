@@ -135,7 +135,7 @@ Notes:
 - [x] Build an archive/history page to browse past testimonies
 
 Notes:
-- Posting is admin-gated (`/testimonies/new` redirects non-admins to `/`, logged-out to `/login`). Originally used a `profiles.is_admin` boolean; **superseded in Phase 7 by `profiles.role`** (`'member'` | `'admin'`) so testimonies and the Content Library share one admin model — see Phase 7 notes. Currently only `tyler+ootest2@ironshepherdsystems.com` is admin — re-bootstrap for the real admin account(s) once the new domains have real email addresses set up.
+- Posting is admin-gated (`/testimonies/new` redirects non-admins to `/`, logged-out to `/login`). Originally used a `profiles.is_admin` boolean; **superseded in Phase 7 by `profiles.role`** (`'member'` | `'admin'`) so testimonies and the Content Library share one admin model — see Phase 7 notes. `tyler+ootest2@ironshepherdsystems.com` was admin during early development; **superseded 2026-09-16** by `tyler@ironshepherdsystems.com`, Tyler's permanent real account (`019_promote_real_admin.sql`) — that's the account to use as admin going forward.
 - Home page shows the latest testimony with `date <= today` (falls back gracefully to the most recent past one if nothing's posted for today yet, rather than showing nothing).
 - Routes: `/` (today's), `/testimonies` (archive), `/testimonies/[id]` (full text + comments), `/testimonies/new` (admin post form).
 - Verified end-to-end in browser: post as admin -> shows on home -> archive lists it -> detail page -> comment -> logged-out user redirected away from `/testimonies/new`.
