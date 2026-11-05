@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Script from "next/script";
 
 declare global {
@@ -30,6 +30,9 @@ declare global {
 export function TurnstileWidget() {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
+  // Without this the widget fails silently (blocked script, failed challenge)
+  // and the form just submits with no token and a confusing error.
+  const [errorCode, setErrorCode] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -40,6 +43,11 @@ export function TurnstileWidget() {
         sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
         theme: "dark",
         appearance: "interaction-only",
+        callback: () => setErrorCode(null),
+        "error-callback": (code: string) => {
+          setErrorCode(String(code));
+          return true;
+        },
       });
     }
 
@@ -71,8 +79,16 @@ export function TurnstileWidget() {
       <Script
         src="https://challenges.cloudflare.com/turnstile/v0/api.js"
         strategy="afterInteractive"
+        onError={() => setErrorCode("script-blocked")}
       />
       <div ref={containerRef} />
+      {errorCode && (
+        <p role="alert" className="text-sm text-red-300">
+          The security check couldn&apos;t load (code {errorCode}). Refresh the
+          page, try a private window, or turn off extensions and tracking
+          protection that block scripts on this site.
+        </p>
+      )}
     </>
   );
 }
