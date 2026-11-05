@@ -1,8 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+// Goes through a security-definer function (022_lock_down_members_content)
+// because logged-out visitors can no longer read prayer_requests directly.
 export async function getActivePrayerCount(supabase: SupabaseClient) {
-  const { count } = await supabase
-    .from("prayer_requests")
-    .select("*", { count: "exact", head: true });
-  return count ?? 0;
+  const { data } = await supabase.rpc("prayer_request_count");
+  return Number(data ?? 0);
 }

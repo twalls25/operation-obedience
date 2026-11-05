@@ -25,6 +25,11 @@ export default async function ResourceDetailPage({
     .single();
 
   if (!resource) {
+    // Members-only resources are invisible to logged-out visitors at the
+    // database level, so "not found" for them really means "log in."
+    if (!user) {
+      redirect("/login");
+    }
     notFound();
   }
 

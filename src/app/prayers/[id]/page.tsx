@@ -33,12 +33,12 @@ export default async function PrayerRequestDetailPage({
     supabase.auth.getUser(),
   ]);
 
-  if (!request) {
-    notFound();
-  }
-
   if (!user) {
     redirect("/login");
+  }
+
+  if (!request) {
+    notFound();
   }
 
   const { data: existing } = await supabase
