@@ -73,6 +73,40 @@ export async function updateMemberStatus(memberId: string, formData: FormData) {
   redirect(`/admin/members/${memberId}?saved=1`);
 }
 
+export async function deleteMemberAccount(memberId: string, formData: FormData) {
+  const supabase = await createClient();
+  await requireAdmin(supabase);
+
+  const { data: member } = await supabase
+    .rpc("admin_get_profiles")
+    .eq("id", memberId)
+    .maybeSingle<{ email: string | null }>();
+
+  if (!member) {
+    redirect("/admin/members");
+  }
+
+  const typed = ((formData.get("confirm") as string) ?? "").trim().toLowerCase();
+  if (!member.email || typed !== member.email.toLowerCase()) {
+    redirect(
+      `/admin/members/${memberId}?error=${encodeURIComponent(
+        "That didn't match this member's email, so nothing was deleted."
+      )}`
+    );
+  }
+
+  // The function re-checks admin/self/admin-target and writes the audit-log
+  // entry in the same transaction as the delete.
+  const { error } = await supabase.rpc("admin_delete_user", { target: memberId });
+
+  if (error) {
+    redirect(`/admin/members/${memberId}?error=${encodeURIComponent(error.message)}`);
+  }
+
+  revalidatePath("/admin/members");
+  redirect("/admin/members?deleted=1");
+}
+
 export async function sendMemberEmail(memberId: string, formData: FormData) {
   const supabase = await createClient();
   const actorId = await requireAdmin(supabase);
