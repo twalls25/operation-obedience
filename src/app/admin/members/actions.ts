@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { sendEmail } from "@/lib/email";
+import { logModerationAction } from "@/lib/moderation-log";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 async function requireAdmin(supabase: SupabaseClient) {
@@ -24,15 +25,17 @@ async function requireAdmin(supabase: SupabaseClient) {
   if (profile?.role !== "admin") {
     redirect("/");
   }
+
+  return user.id;
 }
 
 export async function updateMemberStatus(memberId: string, formData: FormData) {
   const supabase = await createClient();
-  await requireAdmin(supabase);
+  const actorId = await requireAdmin(supabase);
 
   const { data: target } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, status")
     .eq("id", memberId)
     .single();
 
@@ -57,6 +60,14 @@ export async function updateMemberStatus(memberId: string, formData: FormData) {
     );
   }
 
+  await logModerationAction(supabase, {
+    actorId,
+    action: "member.status_change",
+    targetType: "profile",
+    targetId: memberId,
+    note: `${target?.status ?? "unknown"} -> ${status}`,
+  });
+
   revalidatePath(`/admin/members/${memberId}`);
   revalidatePath("/admin/members");
   redirect(`/admin/members/${memberId}?saved=1`);
@@ -64,7 +75,7 @@ export async function updateMemberStatus(memberId: string, formData: FormData) {
 
 export async function sendMemberEmail(memberId: string, formData: FormData) {
   const supabase = await createClient();
-  await requireAdmin(supabase);
+  const actorId = await requireAdmin(supabase);
 
   const subject = formData.get("subject") as string;
   const message = formData.get("message") as string;
@@ -92,6 +103,14 @@ export async function sendMemberEmail(memberId: string, formData: FormData) {
       )}`
     );
   }
+
+  await logModerationAction(supabase, {
+    actorId,
+    action: "member.email_sent",
+    targetType: "profile",
+    targetId: memberId,
+    note: `Subject: ${subject}`,
+  });
 
   redirect(`/admin/members/${memberId}?emailed=1`);
 }

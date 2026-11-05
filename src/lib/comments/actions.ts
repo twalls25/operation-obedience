@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isActiveUser, RESTRICTED_MESSAGE } from "@/lib/moderation";
 import { sendEmail } from "@/lib/email";
+import { logModerationAction } from "@/lib/moderation-log";
 import { SITE_URL } from "@/lib/site";
 import { parentColumn, type CommentParent } from "./types";
 
@@ -87,6 +88,14 @@ export async function deleteComment(commentId: string, path: string) {
       )}`
     );
   }
+
+  await logModerationAction(supabase, {
+    actorId: user.id,
+    action: "comment.delete",
+    targetType: "comment",
+    targetId: commentId,
+    note: comment?.user_id ? `Author: ${comment.user_id}` : undefined,
+  });
 
   if (comment?.user_id) {
     const { data: authorProfile } = await supabase

@@ -50,6 +50,9 @@ Two pragmatic exceptions to "ember is the only accent," flagged per Tyler's inst
 ## Shared architecture note
 Testimonies, prayer requests, and check-ins all share one reusable comments system — a single `comments` table linked by post ID to `testimony_id` / `prayer_request_id` / `checkin_id`. Build the comment component generically once, then wire it into each feature, rather than building separate comment systems per feature.
 
+## Naming: devotionals vs testimonies (decided 2026-11-05)
+What admins post each day (verse reference, verse text, reflection) is a **devotional**; **testimonies** are what members share in the comments underneath it. The original build called the admin post a "testimony," which confused everyone, so the UI now says Devotional everywhere (home "Today's Devotional", nav "Devotionals", "Devotional archive", "Post a devotional") and the comment thread on a devotional is headed "Testimonies & discussion" with a placeholder inviting a testimony (the shared `Comments` component takes optional `heading`/`placeholder` props; prayers/check-ins/message board keep the default "Comments"). **Internal names were deliberately left alone**: routes are still `/testimonies/*`, the table is still `testimonies`, `comments.testimony_id`, `createTestimony`, etc. — a rename touches RLS, FKs and links for no user-visible gain. If you see "testimony" in code, it means "devotional." The guidelines' "another man's testimony" wording is correct as-is (it refers to member testimonies).
+
 ## Public vs member visibility model
 Added in Phase 8. This is the standing reference for what's public vs. members-only — check here before adding a new page rather than guessing.
 
@@ -263,7 +266,20 @@ Notes on the full polish pass (2026-09-13):
 
 **Note for next time**: any Turnstile-protected form (login, sign-up, contact) will fail this same way on *any* new hostname the app is ever reachable at — a new custom domain, a `www.` variant, a Vercel preview URL someone tests against, etc. — until that hostname is added to the Cloudflare widget's domain allowlist. This is a dashboard config step, not something a code change can fix.
 
+## Moderation & safety build (in progress)
+Design docs at the repo root: `moderation-scope.md` (phases M1–M7) and `community-guidelines-revised.md` (draft text). Reviewed 2026-11-05; Tyler approved this adjusted plan:
+- **Build order**: M5 audit log first (so everything after logs from day one) → M1 approval gate → M2 agreement at signup → M3 reporting → M4 moderation actions → M7 revised guidelines (ships with M3, since the text tells members to "use the Report button").
+- **Dropped/deferred**: testimony pre-approval (M4.4 — moot, admins post devotionals and members' testimonies are comments, which publish immediately); invite codes (approval-only for the pilot); M6 rate limits and profanity filter (Turnstile + the approval gate already cover spam; if anything later, flag links only and flag rather than block — a word filter would constantly flag Scripture); private/leaders-only prayer requests; comment locking; suspension end-dates.
+- **`moderator` role deferred** until a first moderator is named (none yet — no pastor found). Admins do everything meanwhile. All staff checks go through the `public.is_staff()` SQL function (`021_moderation_log.sql`), which already includes `'moderator'`, so adding the role later = widen `profiles_role_check` + rewrite the escalation trigger (the risky part — see the 2026-09-16 incident) with no policy churn. When it happens, moderators should **not** see member emails (least privilege; admin-only via `admin_get_profiles()` today).
+- **Doctrine reports** go to admins only until a pastor-moderator exists. The revised "Grace across differences" doctrine-enforcement sentence and the Statement of Faith page are **held** until a pastor reviews them; keep the current wording. Items tagged [LEGAL] in the draft (safety-disclosure exception to confidentiality, 18+/men-only) need legal/insurance review before launch.
+- **Soft delete must be enforced in RLS, not just the UI** when M4 lands (a UI-only "Removed by moderator" still leaves the text readable via the API — unacceptable for removals over posted personal info), plus an admin-only true purge.
+- **Safety-concern reports** need an immediate email to all staff and a written response protocol, and the site must say moderators are volunteers and this isn't a crisis service.
+- Prereq before M1: confirm the signup confirmation-email fix (switching the Supabase "Confirm signup" template to a `token_hash` link) actually works — nobody had signed up to test it as of 2026-11-05.
+
+**M5 — audit log: built, awaiting `021_moderation_log.sql` to be run by Tyler.** `moderation_log` (append-only: select/insert grants only, no update/delete policy; `target_id` has no FK so entries survive hard-deleted targets), `src/lib/moderation-log.ts`'s `logModerationAction()` (best-effort, called *after* the action succeeds; a failed write is `console.error`'d, never blocks the action), wired into `updateMemberStatus` (`member.status_change`, note `old -> new`), `sendMemberEmail` (`member.email_sent`, note has the subject only), and `deleteComment` (`comment.delete`, note has the author id). Admin-only read-only view at `/admin/log` (last 100), linked from `/admin/members`. Not yet verified: log rows actually being written (login-gated — Tyler checks by changing a test member's status, then opening `/admin/log`).
+
 ## Later / Not MVP
+Note: group chat, fitness partner directory, and accountability pods/partner matching below all conflict with `moderation-scope.md`'s "no private messages" and the revised guidelines' "no moving conversations off-platform" rules — each needs its own safety/legal review before it's built.
 - [ ] Group chat feature
 - [ ] Donate button (hold until entity structure — nonprofit vs LLC — is decided)
 - [ ] Native app wrapper via Capacitor

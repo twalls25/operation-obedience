@@ -53,7 +53,12 @@ export default async function AdminMembersPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
-      <h1 className="text-2xl font-bold text-offwhite">Members</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-offwhite">Members</h1>
+        <Link href="/admin/log" className="text-sm text-ember hover:underline">
+          Moderation log
+        </Link>
+      </div>
 
       <ul className="mt-6 flex flex-col gap-3">
         {members?.length ? (
