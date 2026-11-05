@@ -12,6 +12,15 @@ type Props = {
 export function NavClient({ userEmail, isAdmin }: Props) {
   const [open, setOpen] = useState(false);
 
+  // Close the menu when the login state flips (logout/login). Not done via
+  // onClick on the Log out button: closing unmounts the menu's <form> during
+  // the tap, before the browser submits it, so logout silently did nothing.
+  const [prevUserEmail, setPrevUserEmail] = useState(userEmail);
+  if (prevUserEmail !== userEmail) {
+    setPrevUserEmail(userEmail);
+    setOpen(false);
+  }
+
   const links: { href: string; label: string }[] = [
     { href: "/mission", label: "Mission" },
     { href: "/message-board", label: "Message Board" },
@@ -111,11 +120,7 @@ export function NavClient({ userEmail, isAdmin }: Props) {
                   {userEmail}
                 </Link>
                 <form action={logout}>
-                  <button
-                    type="submit"
-                    className="text-left text-muted"
-                    onClick={close}
-                  >
+                  <button type="submit" className="text-left text-muted">
                     Log out
                   </button>
                 </form>
