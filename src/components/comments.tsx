@@ -3,10 +3,21 @@ import { createClient } from "@/lib/supabase/server";
 import { addComment, deleteComment } from "@/lib/comments/actions";
 import { parentColumn, type CommentParent } from "@/lib/comments/types";
 
-type Props = CommentParent & { path: string; error?: string };
+type Props = CommentParent & {
+  path: string;
+  error?: string;
+  heading?: string;
+  placeholder?: string;
+};
 
 export async function Comments(props: Props) {
-  const { path, error, ...parent } = props;
+  const {
+    path,
+    error,
+    heading = "Comments",
+    placeholder = "Add a comment...",
+    ...parent
+  } = props;
   const { column, value } = parentColumn(parent);
   const supabase = await createClient();
 
@@ -39,7 +50,7 @@ export async function Comments(props: Props) {
 
   return (
     <section className="mt-8 flex flex-col gap-4">
-      <h2 className="text-lg font-semibold text-offwhite">Comments</h2>
+      <h2 className="text-lg font-semibold text-offwhite">{heading}</h2>
 
       <ul className="flex flex-col gap-3">
         {comments?.length ? (
@@ -86,7 +97,7 @@ export async function Comments(props: Props) {
             name="body"
             required
             rows={3}
-            placeholder="Add a comment..."
+            placeholder={placeholder}
             className="rounded-md border border-panel bg-transparent px-3 py-2 text-sm text-offwhite placeholder:text-muted focus:border-ember focus:outline-none"
           />
           <button

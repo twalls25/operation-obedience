@@ -17,7 +17,7 @@ export function NavClient({ userEmail, isAdmin }: Props) {
     { href: "/message-board", label: "Message Board" },
     ...(userEmail
       ? [
-          { href: "/testimonies", label: "Testimonies" },
+          { href: "/testimonies", label: "Devotionals" },
           { href: "/prayers", label: "Prayer Requests" },
           { href: "/checkins", label: "Check-Ins" },
         ]
@@ -28,7 +28,7 @@ export function NavClient({ userEmail, isAdmin }: Props) {
     { href: "/contact", label: "Contact" },
     ...(isAdmin
       ? [
-          { href: "/testimonies/new", label: "Post testimony" },
+          { href: "/testimonies/new", label: "Post devotional" },
           { href: "/admin/members", label: "Members" },
         ]
       : []),

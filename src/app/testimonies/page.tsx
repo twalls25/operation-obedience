@@ -28,7 +28,7 @@ export default async function TestimoniesArchivePage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
-      <h1 className="text-2xl font-bold text-offwhite">Testimony archive</h1>
+      <h1 className="text-2xl font-bold text-offwhite">Devotional archive</h1>
 
       <ul className="mt-6 flex flex-col gap-3">
         {testimonies?.length ? (
@@ -46,7 +46,7 @@ export default async function TestimoniesArchivePage() {
             </li>
           ))
         ) : (
-          <p className="text-sm text-muted">No testimonies posted yet.</p>
+          <p className="text-sm text-muted">No devotionals posted yet.</p>
         )}
       </ul>
     </main>

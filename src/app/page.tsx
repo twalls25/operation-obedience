@@ -28,7 +28,7 @@ export default async function Home() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
-      <h1 className="text-2xl font-bold text-offwhite">Today&apos;s Testimony</h1>
+      <h1 className="text-2xl font-bold text-offwhite">Today&apos;s Devotional</h1>
 
       {testimony ? (
         <div className="mt-6">
@@ -61,7 +61,7 @@ export default async function Home() {
         </div>
       ) : (
         <p className="mt-6 text-muted">
-          No testimony has been posted yet. Check back soon.
+          No devotional has been posted yet. Check back soon.
         </p>
       )}
 

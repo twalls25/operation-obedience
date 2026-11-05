@@ -32,7 +32,7 @@ export default async function NewTestimonyPage({
 
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-lg flex-col justify-center px-6 py-12">
-      <h1 className="text-2xl font-bold text-offwhite">Post a testimony</h1>
+      <h1 className="text-2xl font-bold text-offwhite">Post a devotional</h1>
 
       {error && (
         <p className="mt-4 rounded-md border border-red-900 bg-red-950/60 px-3 py-2 text-sm text-red-300">

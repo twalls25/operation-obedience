@@ -54,6 +54,8 @@ export default async function TestimonyDetailPage({
         testimonyId={testimony.id}
         path={`/testimonies/${testimony.id}`}
         error={commentError}
+        heading="Testimonies & discussion"
+        placeholder="Share how this spoke to you, or your testimony..."
       />
     </main>
   );
