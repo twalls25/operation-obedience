@@ -1,4 +1,5 @@
 import { TurnstileWidget } from "@/components/turnstile-widget";
+import { CaptchaSubmitButton } from "@/components/captcha-submit-button";
 import { submitContactMessage } from "./actions";
 
 export default async function ContactPage({
@@ -59,12 +60,12 @@ export default async function ContactPage({
 
           <TurnstileWidget />
 
-          <button
+          <CaptchaSubmitButton
             formAction={submitContactMessage}
             className="mt-2 rounded-md bg-ember px-4 py-2 font-medium text-charcoal hover:bg-ember/90"
           >
             Send message
-          </button>
+          </CaptchaSubmitButton>
         </form>
       )}
     </main>

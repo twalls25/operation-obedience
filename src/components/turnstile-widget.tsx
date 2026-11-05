@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Script from "next/script";
+import { turnstileState } from "@/lib/turnstile-state";
 
 declare global {
   interface Window {
@@ -11,6 +12,7 @@ declare global {
         options: Record<string, unknown>
       ) => string;
       remove: (widgetId: string) => void;
+      reset: (widgetId?: string) => void;
     };
   }
 }
@@ -27,50 +29,72 @@ declare global {
 // login page would otherwise have an uninitialized widget that never
 // produces a token. Rendering explicitly in a useEffect re-runs on every
 // mount, so it works after soft navigation too.
+//
+// Readiness is published through turnstileState so CaptchaSubmitButton can
+// stay disabled until a token exists. Tokens are single-use, so the widget
+// is reset every time its form is submitted: a retry after a failed attempt
+// (e.g. a wrong password, which re-renders the page without remounting the
+// widget) gets a fresh token instead of the spent one.
 export function TurnstileWidget() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const widgetIdRef = useRef<string | null>(null);
   // Without this the widget fails silently (blocked script, failed challenge)
   // and the form just submits with no token and a confusing error.
   const [errorCode, setErrorCode] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    turnstileState.set(false);
+
+    let widgetId: string | null = null;
+    let interval: ReturnType<typeof setInterval> | undefined;
+    let form: HTMLFormElement | null = null;
+
+    // Runs before React's own submit handler has finished, so the reset is
+    // deferred until after React has read the form data (token included).
+    const onSubmit = () => {
+      turnstileState.set(false);
+      setTimeout(() => {
+        if (widgetId && window.turnstile) window.turnstile.reset(widgetId);
+      }, 0);
+    };
 
     function renderWidget() {
-      if (cancelled || !containerRef.current || !window.turnstile) return;
-      widgetIdRef.current = window.turnstile.render(containerRef.current, {
+      if (!containerRef.current || !window.turnstile) return;
+      widgetId = window.turnstile.render(containerRef.current, {
         sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
         theme: "dark",
         appearance: "interaction-only",
-        callback: () => setErrorCode(null),
+        callback: () => {
+          setErrorCode(null);
+          turnstileState.set(true);
+        },
+        "expired-callback": () => turnstileState.set(false),
         "error-callback": (code: string) => {
+          turnstileState.set(false);
           setErrorCode(String(code));
           return true;
         },
       });
+      form = containerRef.current.closest("form");
+      form?.addEventListener("submit", onSubmit);
     }
 
     if (window.turnstile) {
       renderWidget();
     } else {
-      const interval = setInterval(() => {
+      interval = setInterval(() => {
         if (window.turnstile) {
           clearInterval(interval);
+          interval = undefined;
           renderWidget();
         }
       }, 100);
-      return () => {
-        cancelled = true;
-        clearInterval(interval);
-      };
     }
 
     return () => {
-      cancelled = true;
-      if (widgetIdRef.current && window.turnstile) {
-        window.turnstile.remove(widgetIdRef.current);
-      }
+      if (interval) clearInterval(interval);
+      form?.removeEventListener("submit", onSubmit);
+      if (widgetId && window.turnstile) window.turnstile.remove(widgetId);
+      turnstileState.set(false);
     };
   }, []);
 

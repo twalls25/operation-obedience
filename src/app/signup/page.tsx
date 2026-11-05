@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { signup } from "@/app/auth/actions";
 import { TurnstileWidget } from "@/components/turnstile-widget";
+import { CaptchaSubmitButton } from "@/components/captcha-submit-button";
 
 export default async function SignupPage({
   searchParams,
@@ -51,12 +52,12 @@ export default async function SignupPage({
 
           <TurnstileWidget />
 
-          <button
+          <CaptchaSubmitButton
             formAction={signup}
             className="mt-2 rounded-md bg-ember px-4 py-2 font-medium text-charcoal hover:bg-ember/90"
           >
             Sign up
-          </button>
+          </CaptchaSubmitButton>
         </form>
       )}
 
